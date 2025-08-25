@@ -24,6 +24,6 @@ void PORTF_Init(void){
 	GPIO_PORTF_DIR_R |= RED_LED_MASK; // make PF2 out (built-in blue LED)
   GPIO_PORTF_AFSEL_R &= ~RED_LED_MASK;// disable alt funct on PF2
   GPIO_PORTF_DEN_R |= RED_LED_MASK; // enable digital I/O on PF2                            
-  GPIO_PORTF_PCTL_R &= ~0x00000F00; // configure PF2 as GPIO
+  GPIO_PORTF_PCTL_R &= ~0x000000F0; // configure PF2 as GPIO
   GPIO_PORTF_AMSEL_R |= RED_LED_MASK;   // disable analog functionality on PF  
 }
