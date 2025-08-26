@@ -16,7 +16,7 @@ int main(void){
 	PORTF_Init();							// PF2(Blue LED) is an output for debugging
   PLL_Init();               // set system clock to 50 MHz
   //SysTick_Init();           // initialize SysTick timer
-	Timer1A_Init(40000000);		// initialize timer1 (1 Hz)
+	Timer1A_Init(15625);		// initialize timer1 (1 Hz)
 	RED_LED = 0x00;
 	EnableInterrupts();
 	
