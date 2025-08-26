@@ -1,3 +1,10 @@
+// CECS347 Project 1 Part 1
+// Team members: Justin Narciso, Natasha Kho
+// Lab description: Creating two traffic lights and a pedestrian light using Moore finite state machine
+ //
+// Hardware Design
+// Port F Will be flashing a the built in Red LED every 0.5 second
+
 #include "tm4c123gh6pm.h"
 #include "SysTick.h"
 #include "PLL.h"
