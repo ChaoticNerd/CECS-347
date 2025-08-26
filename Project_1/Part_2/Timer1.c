@@ -15,17 +15,17 @@ void Timer1A_Init(unsigned long period){
   TIMER1_CFG_R = 0x00000004;    // 2) configure for 16-bit mode
   TIMER1_TAMR_R = 0x00000002;   // 3) configure for periodic down-count mode
   TIMER1_TAILR_R = period-1;    // 4) reload value
-  TIMER1_TAPR_R = 255;            // 5) bus clock prescale was 8
+  TIMER1_TAPR_R = 255;          // 5) bus clock prescale to 255, which is 2^16-1
   TIMER1_ICR_R = 0x00000001;    // 6) clear TIMER0A timeout flag
   TIMER1_IMR_R = 0x00000001;    // 7) arm timeout interrupt
   NVIC_PRI5_R = (NVIC_PRI5_R&0xFF1FFFFF)|0x0000A000; // 8) enable priority 5
 // interrupts enabled in the main program after all devices initialized
 // vector number 35, interrupt number 19
   NVIC_EN0_R = 1<<21;           // 9) enable IRQ 19 in NVIC
-  TIMER1_CTL_R = 0x00000001;    // 10) enable TIMER0A
+  TIMER1_CTL_R = 0x00000001;    // 10) enable TIMER1A
 }
 
 void Timer1A_Handler(void){	
 	RED_LED ^= RED_LED_MASK; // toggle PF1: Red LED
-	TIMER1_ICR_R = TIMER_ICR_TATOCINT;// acknowledge TIMER0A timeout
+	TIMER1_ICR_R = TIMER_ICR_TATOCINT;// acknowledge TIMER1A timeout
 }
