@@ -17,8 +17,9 @@ int main(void){
   PLL_Init();               // set system clock to 50 MHz
   //SysTick_Init();           // initialize SysTick timer
 	Timer1A_Init(40000000);		// initialize timer1 (1 Hz)
-	EnableInterrupts();
 	RED_LED = 0x00;
+	EnableInterrupts();
+	
 	
   while(1){
     //SysTick_Wait10ms(25);    // approximately 10*10 ms = 0.1s
