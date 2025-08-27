@@ -15,7 +15,7 @@ void Timer1A_Init(unsigned long period){
   TIMER1_CFG_R = 0x00000004;    // 2) configure for 16-bit mode
   TIMER1_TAMR_R = 0x00000002;   // 3) configure for periodic down-count mode
   TIMER1_TAILR_R = period-1;    // 4) reload value
-  TIMER1_TAPR_R = 255;          // 5) bus clock prescale to 255, which is 2^16-1
+  TIMER1_TAPR_R = 255;          // 5) bus clock prescale to 255
   TIMER1_ICR_R = 0x00000001;    // 6) clear TIMER0A timeout flag
   TIMER1_IMR_R = 0x00000001;    // 7) arm timeout interrupt
   NVIC_PRI5_R = (NVIC_PRI5_R&0xFF1FFFFF)|0x0000A000; // 8) enable priority 5
