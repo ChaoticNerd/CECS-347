@@ -13,15 +13,24 @@
 #define RED_LED       (*((volatile unsigned long *)0x40025008))
 #define RED_LED_MASK    0x02  // bit pisition for onboard red LED
 
+// Function prototypes
+// External functions from startup.s
 void PORTF_Init(void);
 
+extern void DisableInterrupts(void); // Disable interrupts
+extern void EnableInterrupts(void);  // Enable interrupts
+extern void WaitForInterrupt(void);  // low power mode
 int main(void){
+	DisableInterrupts();
 	PORTF_Init();							// PF1(RED LED) is an output for debugging
   PLL_Init();               // set system clock to 16 MHz
   SysTick_Init();           // initialize SysTick timer
+	EnableInterrupts();
+	
   while(1){
-    RED_LED ^= RED_LED_MASK; // toggle PF2: Blue LED
-    SysTick_Wait10ms(25);    // approximately 10*10 ms = 0.1s
+		WaitForInterrupt();
+    //RED_LED ^= RED_LED_MASK; // toggle PF2: Blue LED
+    //SysTick_Wait10ms(25);    // approximately 10*10 ms = 0.1s
   }
 }
 

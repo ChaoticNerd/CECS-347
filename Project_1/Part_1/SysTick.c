@@ -1,23 +1,25 @@
 #include "tm4c123gh6pm.h"
+#include "SysTick.h"
 #include <stdint.h>
 
-#define TEN_MS 160000  // reload value to generate 10ms for system clock 50MHz.
+#define EN_SYSTICK_CC		NVIC_ST_CTRL_CLK_SRC | NVIC_ST_CTRL_INTEN  // used to set inten and clk source of systick
+#define PRI3_TOP3_BITS_RESET	0x1FFFFFFFF  // used to clear all priority bits of systick
+#define PRI3_TOP3_BITS_SET	0x600000000  // used to set systick priority as 3
+#define VALUE_RESET  0  // usde to clear or disable certain definitions
+#define period 4000000
 
-// Initialize SysTick with busy wait running at bus clock.
-void SysTick_Init(void){
-  NVIC_ST_CTRL_R = 0;                   // disable SysTick during setup
-  NVIC_ST_CTRL_R |= NVIC_ST_CTRL_CLK_SRC; // set SysTick timer to use core clock: 50MHz
+// initialize SysTick
+void SysTick_Init(void) {	
+  NVIC_ST_CTRL_R = 0;         // disable SysTick during setup
+  NVIC_ST_RELOAD_R = period-1;// reload value: if period = 4
+  NVIC_ST_CURRENT_R = 0;      // any write to current clears it
+  NVIC_SYS_PRI3_R = (NVIC_SYS_PRI3_R&PRI3_TOP3_BITS_RESET)|PRI3_TOP3_BITS_SET; // priority 3
+  NVIC_ST_CTRL_R |= NVIC_ST_CTRL_CLK_SRC|NVIC_ST_CTRL_INTEN|NVIC_ST_CTRL_ENABLE; // enable SysTick with core clock and interrupts      
 }
 
-// Time delay using busy wait.
-// This assumes 50 MHz system clock.
-// Input: 16-bit interger for multiple of 10ms
-void SysTick_Wait10ms(uint16_t delay){	
-	NVIC_ST_RELOAD_R = TEN_MS*delay-1;
-  NVIC_ST_CURRENT_R = 0;                // any write to current clears it                                        
-  NVIC_ST_CTRL_R |= NVIC_ST_CTRL_ENABLE; // enable SysTick timer
-	
-	// wait for COUNT bit in control register to be raised.
-	while ((NVIC_ST_CTRL_R&NVIC_ST_CTRL_COUNT)==0) {} 
-  NVIC_ST_CTRL_R &= ~NVIC_ST_CTRL_ENABLE; // disable SysTick timer
+
+// Systick interrupt handler:
+void SysTick_Handler(void) {
+	NVIC_ST_CTRL_R &= ~NVIC_ST_CTRL_ENABLE; // clear enable to end countdown
+	RED_LED ^= RED_LED_MASK; // toggle PF2: Blue LED
 }

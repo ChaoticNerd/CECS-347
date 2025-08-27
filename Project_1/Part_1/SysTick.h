@@ -1,3 +1,6 @@
+#define RED_LED       (*((volatile unsigned long *)0x40025008))
+#define RED_LED_MASK    0x02  // bit pisition for onboard red LED
+
 // Initialize SysTick with busy wait running at bus clock.
 void SysTick_Init(void);
 
