@@ -1,16 +1,16 @@
 Dependencies for Project 'P1P1', Target 'Target_1': (DO NOT MODIFY !)
 CompilerVersion: 6240000::V6.24::ARMCLANG
-F (.\PLL.c)(0x68ACBF7E)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=none -mfloat-abi=soft -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -gdwarf-4 -O0 -ffunction-sections -Wall -Wextra -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-IC:/Users/mavri/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM-o ./objects/pll.o -MMD)
-I (PLL.h)(0x68ACCDEB)
-I (tm4c123gh6pm.h)(0x68ACCCA2)
-F (.\PLL.h)(0x68ACCDEB)()
-F (.\SysTick.c)(0x68AF571D)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=none -mfloat-abi=soft -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -gdwarf-4 -O0 -ffunction-sections -Wall -Wextra -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-IC:/Users/mavri/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM-o ./objects/systick.o -MMD)
-I (tm4c123gh6pm.h)(0x68ACCCA2)
-I (SysTick.h)(0x68AF54CE)
-F (.\SysTick.h)(0x68AF54CE)()
-F (.\main.c)(0x68AF54BC)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=none -mfloat-abi=soft -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -gdwarf-4 -O0 -ffunction-sections -Wall -Wextra -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-IC:/Users/mavri/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM-o ./objects/main.o -MMD)
-I (tm4c123gh6pm.h)(0x68ACCCA2)
-I (SysTick.h)(0x68AF54CE)
-I (PLL.h)(0x68ACCDEB)
-F (.\tm4c123gh6pm.h)(0x68ACCCA2)()
-F (.\startup.s)(0x68ACCD0A)(--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=none -mfloat-abi=soft -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c-gdwarf-4 -Wa,armasm,--pd,"__EVAL SETA 1"-IC:/Users/mavri/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-Wa,armasm,--pd,"__UVISION_VERSION SETA 543" -Wa,armasm,--pd,"TM4C123GH6PM SETA 1"-o ./objects/startup.o)
+F (.\PLL.c)(0x68ACD405)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=none -mfloat-abi=soft -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -gdwarf-4 -O0 -ffunction-sections -Wall -Wextra -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-IC:/Users/PugWomp/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM-o ./objects/pll.o -MMD)
+I (PLL.h)(0x68ACD58D)
+I (tm4c123gh6pm.h)(0x68ACD58D)
+F (.\PLL.h)(0x68ACD58D)()
+F (.\SysTick.c)(0x68AF578E)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=none -mfloat-abi=soft -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -gdwarf-4 -O0 -ffunction-sections -Wall -Wextra -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-IC:/Users/PugWomp/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM-o ./objects/systick.o -MMD)
+I (tm4c123gh6pm.h)(0x68ACD58D)
+I (SysTick.h)(0x68AF5558)
+F (.\SysTick.h)(0x68AF5558)()
+F (.\main.c)(0x68AF5558)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=none -mfloat-abi=soft -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -gdwarf-4 -O0 -ffunction-sections -Wall -Wextra -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-IC:/Users/PugWomp/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM-o ./objects/main.o -MMD)
+I (tm4c123gh6pm.h)(0x68ACD58D)
+I (SysTick.h)(0x68AF5558)
+I (PLL.h)(0x68ACD58D)
+F (.\tm4c123gh6pm.h)(0x68ACD58D)()
+F (.\startup.s)(0x68ACD58D)(--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=none -mfloat-abi=soft -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c-gdwarf-4 -Wa,armasm,--pd,"__EVAL SETA 1"-IC:/Users/PugWomp/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-Wa,armasm,--pd,"__UVISION_VERSION SETA 543" -Wa,armasm,--pd,"TM4C123GH6PM SETA 1"-o ./objects/startup.o)

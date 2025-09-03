@@ -23,7 +23,7 @@ int main(void){
 	PORTF_Init();							// PF1(RED LED) is an output for debugging
   PLL_Init();               // set system clock to 16 MHz
   //SysTick_Init();           // initialize SysTick timer,removed in part2
-	Timer1A_Init(15625);			// initialize timer1 (2 Hz), achieved by 16Mhz
+	Timer1A_Init(40000);			// initialize timer1 (2 Hz), achieved by 16Mhz
 	RED_LED = 0x00;
 	EnableInterrupts();
 	
