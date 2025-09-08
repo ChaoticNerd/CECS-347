@@ -1,9 +1,6 @@
 // CECS347 Project 1 Part 1
 // Team members: Justin Narciso, Natasha Kho
 // Lab description: Creating two traffic lights and a pedestrian light using Moore finite state machine
- //
-// Hardware Design
-// Port F Will be flashing a the built in Red LED every 0.5 second
 
 #include "tm4c123gh6pm.h"
 #include "SysTick.h"
@@ -18,18 +15,24 @@ void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
 void WaitForInterrupt(void);  // low power mode
 
+static volatile uint8_t done = 0;
+static volatile uint32_t distance = 0;
+
+
 int main(void){
 	DisableInterrupts();
 	PORTF_Init();							// PF1(RED LED) is an output for debugging
   PLL_Init();               // set system clock to 16 MHz
-  //SysTick_Init();           // initialize SysTick timer,removed in part2
 	Timer1A_Init(62745);			// initialize timer1 (2 Hz), achieved by 16Mhz
 	RED_LED = 0x00;
 	EnableInterrupts();
 	
-	
   while(1){
-    //SysTick_Wait10ms(25);    // approximately 10*10 ms = 0.1s removed in Part 2
+		distance = 0; // Handled by B edge interrupt 
+		
+		// This chunk should be replaced by the one-shot periodic GPTM
+		Timer1A_Init(608000, 0x0x00000001);
+		WaitForInterrupt();
 		WaitForInterrupt();
   }
 }

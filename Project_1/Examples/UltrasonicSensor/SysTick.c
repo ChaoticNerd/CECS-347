@@ -23,7 +23,7 @@ void SysTick_Stop(void){
 
 // Calculate number of machine cycles elapsed
 uint32_t SysTick_Get_MC_Elapsed(void){
-	return NVIC_ST_RELOAD_R-NVIC_ST_CURRENT_R;
+	return NVIC_ST_RELOAD_R-NVIC_ST_CURRENT_R;  // (tailr - TAR) *(prescale +1)
 }
 
 // Time delay using busy wait.

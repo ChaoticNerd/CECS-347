@@ -3,13 +3,13 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Tool Versions:</h2>
-IDE-Version: µVision V5.43.1.0
+IDE-Version: µVision V5.43.0.0
 Copyright (C) 2025 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: Justin Narciso, CSULB, LIC=----
+License Information: Natasha Kho, California State University Long Beach, LIC=----
  
 Tool Versions:
 Toolchain:       MDK-Lite  Version: 5.43.0.0
-Toolchain Path:  C:\Users\PugWomp\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin
+Toolchain Path:  C:\Users\mavri\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin
 C Compiler:      ArmClang.exe V6.24
 Assembler:       Armasm.exe V6.24
 Linker/Locator:  ArmLink.exe V6.24
@@ -21,20 +21,46 @@ Target DLL:      UL2CM3.DLL V1.164.16.0
 Dialog DLL:      TCM.DLL V1.56.6.0
  
 <h2>Project:</h2>
-C:\Users\PugWomp\Documents\Github\CECS-347\Project_1\Part_3\P1P3.uvprojx
+C:\Users\mavri\Documents\GitHub\CECS-347\Project_1\Part_3\P1P3.uvprojx
 Project File Date:  09/03/2025
 
 <h2>Output:</h2>
-*** Using Compiler 'V6.24', folder: 'C:\Users\PugWomp\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
+*** Using Compiler 'V6.24', folder: 'C:\Users\mavri\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
 Rebuild target 'Target_1'
-assembling startup.s...
-compiling SysTick.c...
-compiling main.c...
 compiling PLL.c...
+assembling startup.s...
+main.c(18): error: unknown type name 'uint8_t'
+   18 | static volatile uint8_t done = 0;
+      |                 ^
+main.c(19): error: unknown type name 'uint32_t'
+   19 | static volatile uint32_t distance = 0;
+      |                 ^
+main.c(34): error: invalid suffix 'x00000001' on integer constant
+   34 |                 Timer1A_Init(608000, 0x0x00000001);
+      |                                         ^
+3 errors generated.
+compiling main.c...
+UltrasonicSensor.c(27): error: call to undeclared function 'Timer1A_Init'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   27 |                 Timer1A_Init(150, 0x00000002); // one shot
+      |                 ^
+UltrasonicSensor.c(37): error: use of undeclared identifier 'distance'
+   37 |                 distance = (uint32_t)(Timer1A_Stop() * MC_LEN * SOUND_SPEED)/2;         
+      |                 ^
+UltrasonicSensor.c(37): error: call to undeclared function 'Timer1A_Stop'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   37 |                 distance = (uint32_t)(Timer1A_Stop() * MC_LEN * SOUND_SPEED)/2;         
+      |                                       ^
+3 errors generated.
+compiling UltrasonicSensor.c...
+Timer1.c(29): error: use of undeclared identifier 'uint32_t'
+   29 |         uint32_t timeProgressed =(TIMER1_TAILR_R - TIMER1_TAR_R) *(prescale + 1);
+      |         ^
+Timer1.c(31): error: use of undeclared identifier 'timeProgressed'
+   31 |         return timeProgressed;
+      |                ^
+2 errors generated.
 compiling Timer1.c...
-linking...
-Program Size: Code=1476 RO-data=16 RW-data=0 ZI-data=1120  
-".\Objects\P1P1.axf" - 0 Error(s), 0 Warning(s).
+compiling SysTick.c...
+".\Objects\P1P1.axf" - 8 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -44,10 +70,11 @@ Package Vendor: Keil
                 Texas Instruments Tiva C Series Device Support and Examples
 
 <h2>Collection of Component include folders:</h2>
-  C:/Users/PugWomp/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123
+  C:/Users/mavri/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:00
+Target not created.
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>
