@@ -27,40 +27,45 @@ Project File Date:  09/03/2025
 <h2>Output:</h2>
 *** Using Compiler 'V6.24', folder: 'C:\Users\mavri\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
 Rebuild target 'Target_1'
+compiling SysTick.c...
+Timer1.c(41): error: expression is not assignable
+   41 |                 TRIGGER_PIN &= ~TRIGGER_VALUE; // send low to trigger
+      |                 ~~~~~~~~~~~ ^
+Timer1.c(45): error: expression is not assignable
+   45 |                 TRIGGER_PIN |= TRIGGER_VALUE; // send high to trigger
+      |                 ~~~~~~~~~~~ ^
+Timer1.c(49): error: expression is not assignable
+   49 |                 TRIGGER_PIN &= ~TRIGGER_VALUE; // send low to trigger
+      |                 ~~~~~~~~~~~ ^
+3 errors generated.
+compiling Timer1.c...
+compiling UltrasonicSensor.c...
+main.c(30): error: call to undeclared function 'Timer1A__OneShot'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   30 |                 Timer1A__OneShot();
+      |                 ^
+main.c(30): note: did you mean 'Timer1A_OneShot'?
+main.c(18): note: 'Timer1A_OneShot' declared here
+   18 | void Timer1A_OneShot(void);
+      |      ^
+   19 | 
+   20 | int main(void){
+   21 |         DisableInterrupts();
+   22 |         PORTF_Init();                                                   // PF1(RED LED) is an output for debugging
+   23 |   PLL_Init();               // set system clock to 16 MHz
+   24 |         //Timer1A_Init(62745);                  // initialize timer1 (2 Hz), achieved by 16Mhz
+   25 |         RED_LED = 0x00;
+   26 |         EnableInterrupts();
+   27 |         
+   28 |   while(1){
+   29 | 
+   30 |                 Timer1A__OneShot();
+      |                 ~~~~~~~~~~~~~~~~
+      |                 Timer1A_OneShot
+1 error generated.
+compiling main.c...
 compiling PLL.c...
 assembling startup.s...
-main.c(18): error: unknown type name 'uint8_t'
-   18 | static volatile uint8_t done = 0;
-      |                 ^
-main.c(19): error: unknown type name 'uint32_t'
-   19 | static volatile uint32_t distance = 0;
-      |                 ^
-main.c(34): error: invalid suffix 'x00000001' on integer constant
-   34 |                 Timer1A_Init(608000, 0x0x00000001);
-      |                                         ^
-3 errors generated.
-compiling main.c...
-UltrasonicSensor.c(27): error: call to undeclared function 'Timer1A_Init'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   27 |                 Timer1A_Init(150, 0x00000002); // one shot
-      |                 ^
-UltrasonicSensor.c(37): error: use of undeclared identifier 'distance'
-   37 |                 distance = (uint32_t)(Timer1A_Stop() * MC_LEN * SOUND_SPEED)/2;         
-      |                 ^
-UltrasonicSensor.c(37): error: call to undeclared function 'Timer1A_Stop'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   37 |                 distance = (uint32_t)(Timer1A_Stop() * MC_LEN * SOUND_SPEED)/2;         
-      |                                       ^
-3 errors generated.
-compiling UltrasonicSensor.c...
-Timer1.c(29): error: use of undeclared identifier 'uint32_t'
-   29 |         uint32_t timeProgressed =(TIMER1_TAILR_R - TIMER1_TAR_R) *(prescale + 1);
-      |         ^
-Timer1.c(31): error: use of undeclared identifier 'timeProgressed'
-   31 |         return timeProgressed;
-      |                ^
-2 errors generated.
-compiling Timer1.c...
-compiling SysTick.c...
-".\Objects\P1P1.axf" - 8 Error(s), 0 Warning(s).
+".\Objects\P1P1.axf" - 4 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -74,7 +79,7 @@ Package Vendor: Keil
 
 <h2>Collection of Component Files used:</h2>
 Target not created.
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:00
 </pre>
 </body>
 </html>

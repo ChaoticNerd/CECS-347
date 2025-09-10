@@ -6,6 +6,7 @@
 #include "SysTick.h"
 #include "PLL.h"
 #include "Timer1.h"
+#include <stdint.h>
 
 #define RED_LED       (*((volatile unsigned long *)0x40025008))
 #define RED_LED_MASK    0x02  // bit pisition for onboard blue LED
@@ -14,24 +15,20 @@ void PORTF_Init(void);
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
 void WaitForInterrupt(void);  // low power mode
-
-static volatile uint8_t done = 0;
-static volatile uint32_t distance = 0;
-
+void Timer1A_OneShot(void);
 
 int main(void){
 	DisableInterrupts();
 	PORTF_Init();							// PF1(RED LED) is an output for debugging
   PLL_Init();               // set system clock to 16 MHz
-	Timer1A_Init(62745);			// initialize timer1 (2 Hz), achieved by 16Mhz
+	//Timer1A_Init(62745);			// initialize timer1 (2 Hz), achieved by 16Mhz
 	RED_LED = 0x00;
 	EnableInterrupts();
 	
   while(1){
-		distance = 0; // Handled by B edge interrupt 
+
+		Timer1A__OneShot();
 		
-		// This chunk should be replaced by the one-shot periodic GPTM
-		Timer1A_Init(608000, 0x0x00000001);
 		WaitForInterrupt();
 		WaitForInterrupt();
   }
