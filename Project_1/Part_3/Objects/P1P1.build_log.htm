@@ -3,13 +3,13 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Tool Versions:</h2>
-IDE-Version: µVision V5.43.0.0
+IDE-Version: µVision V5.43.1.0
 Copyright (C) 2025 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: Natasha Kho, California State University Long Beach, LIC=----
+License Information: Justin Narciso, CSULB, LIC=----
  
 Tool Versions:
 Toolchain:       MDK-Lite  Version: 5.43.0.0
-Toolchain Path:  C:\Users\mavri\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin
+Toolchain Path:  C:\Users\PugWomp\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin
 C Compiler:      ArmClang.exe V6.24
 Assembler:       Armasm.exe V6.24
 Linker/Locator:  ArmLink.exe V6.24
@@ -17,55 +17,21 @@ Library Manager: ArmAr.exe V6.24
 Hex Converter:   FromElf.exe V6.24
 CPU DLL:         SARMCM3.DLL V5.43.0.0
 Dialog DLL:      DCM.DLL V1.17.5.0
-Target DLL:      UL2CM3.DLL V1.164.16.0
+Target DLL:      lmidk-agdi.dll V???
 Dialog DLL:      TCM.DLL V1.56.6.0
  
 <h2>Project:</h2>
-C:\Users\mavri\Documents\GitHub\CECS-347\Project_1\Part_3\P1P3.uvprojx
-Project File Date:  09/03/2025
+C:\Users\PugWomp\Documents\Github\CECS-347\Project_1\Part_3\P1P3.uvprojx
+Project File Date:  09/16/2025
 
 <h2>Output:</h2>
-*** Using Compiler 'V6.24', folder: 'C:\Users\mavri\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
-Rebuild target 'Target_1'
-compiling SysTick.c...
-Timer1.c(41): error: expression is not assignable
-   41 |                 TRIGGER_PIN &= ~TRIGGER_VALUE; // send low to trigger
-      |                 ~~~~~~~~~~~ ^
-Timer1.c(45): error: expression is not assignable
-   45 |                 TRIGGER_PIN |= TRIGGER_VALUE; // send high to trigger
-      |                 ~~~~~~~~~~~ ^
-Timer1.c(49): error: expression is not assignable
-   49 |                 TRIGGER_PIN &= ~TRIGGER_VALUE; // send low to trigger
-      |                 ~~~~~~~~~~~ ^
-3 errors generated.
-compiling Timer1.c...
-compiling UltrasonicSensor.c...
-main.c(30): error: call to undeclared function 'Timer1A__OneShot'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   30 |                 Timer1A__OneShot();
-      |                 ^
-main.c(30): note: did you mean 'Timer1A_OneShot'?
-main.c(18): note: 'Timer1A_OneShot' declared here
-   18 | void Timer1A_OneShot(void);
-      |      ^
-   19 | 
-   20 | int main(void){
-   21 |         DisableInterrupts();
-   22 |         PORTF_Init();                                                   // PF1(RED LED) is an output for debugging
-   23 |   PLL_Init();               // set system clock to 16 MHz
-   24 |         //Timer1A_Init(62745);                  // initialize timer1 (2 Hz), achieved by 16Mhz
-   25 |         RED_LED = 0x00;
-   26 |         EnableInterrupts();
-   27 |         
-   28 |   while(1){
-   29 | 
-   30 |                 Timer1A__OneShot();
-      |                 ~~~~~~~~~~~~~~~~
-      |                 Timer1A_OneShot
-1 error generated.
-compiling main.c...
+*** Using Compiler 'V6.24', folder: 'C:\Users\PugWomp\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
+Build target 'Target_1'
 compiling PLL.c...
-assembling startup.s...
-".\Objects\P1P1.axf" - 4 Error(s), 0 Warning(s).
+compiling main.c...
+linking...
+Program Size: Code=2508 RO-data=16 RW-data=0 ZI-data=1128  
+".\Objects\P1P1.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -75,11 +41,10 @@ Package Vendor: Keil
                 Texas Instruments Tiva C Series Device Support and Examples
 
 <h2>Collection of Component include folders:</h2>
-  C:/Users/mavri/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123
+  C:/Users/PugWomp/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123
 
 <h2>Collection of Component Files used:</h2>
-Target not created.
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

@@ -1,46 +1,74 @@
-// CECS347 Project 1 Part 1
-// Team members: Justin Narciso, Natasha Kho
-// Lab description: Creating two traffic lights and a pedestrian light using Moore finite state machine
+// Project1Part3.c
+// Runs on LM4F120/TM4C123
+// Use GPTM Timer and Edge Interrupt to use Ultrasonic Sensor
+// Natasha Kho, Justin Narciso
+// September 8, 2025
 
 #include "tm4c123gh6pm.h"
-#include "SysTick.h"
-#include "PLL.h"
 #include "Timer1.h"
+#include "PLL.h"
 #include <stdint.h>
 
-#define RED_LED       (*((volatile unsigned long *)0x40025008))
-#define RED_LED_MASK    0x02  // bit pisition for onboard blue LED
+#define TRIGGER_PIN 						(*((volatile unsigned long *)0x40005200))  // PB7 is the trigger pin	
+#define ECHO_PIN 								(*((volatile unsigned long *)0x40005100))  // PB6 is the echo pin	
+#define TRIGGER_VALUE 					0x80   			// trigger at bit 7
+#define ECHO_VALUE 							0x40   			// trigger at bit 6
+//#define ONE_SHOT								0x00000001	// bit position for one-shot mode
+//#define ONE_SHOT_RELOAD					10					// 2 us
+#define PERIODIC					0x00000002		// bit position for periodic count-down mode
+#define PERIODIC_RELOAD		38000					// time from sending ultrasonic to returning 
 
-void PORTF_Init(void);
-void DisableInterrupts(void); // Disable interrupts
-void EnableInterrupts(void);  // Enable interrupts
-void WaitForInterrupt(void);  // low power mode
-void Timer1A_OneShot(void);
+#define MC_LEN 						0.0625 				// length of one machine cycle in microsecond for 16MHz clock
+#define SOUND_SPEED 			0.0343 				// centimeter per micro-second
+#define PERIODIC_RELOAD		38000					// time from sending ultrasonic to returning 
 
-int main(void){
-	DisableInterrupts();
-	PORTF_Init();							// PF1(RED LED) is an output for debugging
-  PLL_Init();               // set system clock to 16 MHz
-	//Timer1A_Init(62745);			// initialize timer1 (2 Hz), achieved by 16Mhz
-	RED_LED = 0x00;
-	EnableInterrupts();
+extern void PortB_Init(void);
+void GPIOPortB_Handler(void);
+extern void Timer1A_Init(unsigned long period);
+extern uint32_t Timer1A_Stop(void);
+extern void Timer1A_Start(unsigned long period);
+//extern uint32_t TimeElapsed(void);
+extern void DisableInterrupts(void); // Disable interrupts
+extern void EnableInterrupts(void);  // Enable interrupts
 	
-  while(1){
+static volatile uint32_t distance=0;
+static volatile uint32_t done=0;
 
-		Timer1A__OneShot();
-		
-		WaitForInterrupt();
-		WaitForInterrupt();
+ int main(void){ 
+  DisableInterrupts();
+	PLL_Init();    // bus clock at 16 MHz
+	Timer1A_Init(PERIODIC_RELOAD); 	// initialize timer1 
+  PortB_Init();
+	EnableInterrupts();
+
+  while(1){
+		done = 0;
+		TRIGGER_PIN &= ~TRIGGER_VALUE;
+		Timer1A_Start(10);
+		TRIGGER_PIN |= TRIGGER_VALUE;
+		Timer1A_Start(2);
+		TRIGGER_PIN &= ~TRIGGER_VALUE;
+		while(!done);
   }
 }
 
-void PORTF_Init(void){
-	SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R5; // activate port F
-	while ((SYSCTL_RCGCGPIO_R&SYSCTL_RCGCGPIO_R5)!=SYSCTL_RCGCGPIO_R5){};
-	
-	GPIO_PORTF_DIR_R |= RED_LED_MASK; 	// make PF1 out (built-in red LED)
-  GPIO_PORTF_AFSEL_R &= ~RED_LED_MASK;// disable alt funct on PF1
-  GPIO_PORTF_DEN_R |= RED_LED_MASK; 	// enable digital I/O on PF1                           
-  GPIO_PORTF_PCTL_R &= ~0x000000F0; 	// configure PF1 as GPIO
-  GPIO_PORTF_AMSEL_R |= RED_LED_MASK; // disable analog functionality on PF  
+
+void GPIOPortB_Handler(void){
+	if (ECHO_PIN == ECHO_VALUE){  				// echo pin rising edge is detected, start timing
+			Timer1A_Start(38000);   // configure for periodic down-count mode
+	}
+	else { 
+		// echo pin falling edge is detected, end timing and calculate distance.
+    // The following code is based on the fact that the HCSR04 ultrasonic sensor 
+    // echo pin will always go low after a trigger with bouncing back
+    // or after a timeout. The maximum distance can be detected is 400cm.
+		// The speed of sound is approximately 340 meters per second, 
+		// or  .0343 c/µS.
+    // Distance = (echo pulse width * 0.0343)/2; = ((# of mc)*MC_LEN*SOUND_SPEED)/2
+		Timer1A_Stop();
+		//while(!ECHO_PIN);
+		distance = (uint32_t)(Timer1A_Stop()*MC_LEN*SOUND_SPEED)/2;	
+		done = 1;
+	}
+  GPIO_PORTB_ICR_R = 0x40;      // acknowledge flag 6
 }
