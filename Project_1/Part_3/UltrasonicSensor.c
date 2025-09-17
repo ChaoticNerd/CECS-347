@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
 #include "UltrasonicSensor.h"
-void Timer1A_OneShot(void);
 
 void PortB_Init(void){ 
   SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOB;           // 1) activate clock for Port A
@@ -25,7 +24,7 @@ void PortB_Init(void){
 void GPIOPortB_Handler(void){
 	
 	if (ECHO_PIN==ECHO_VALUE){  // echo pin rising edge is detected, start timing
-		Timer1A_OneShot();				//need to be periodic
+		Timer1A_Init(150, 0x00000002); // one shot
 	}
 	else { // echo pin falling edge is detected, end timing and calculate distance.
     // The following code is based on the fact that the HCSR04 ultrasonic sensor 
