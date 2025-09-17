@@ -3,7 +3,7 @@
 // PB6 connects to echo pin to generate edge-triggered interrupt.
 // PB7 connects to Ultrasonic sensor trigger pin.
 // GPTM Timer is used to generate the required timing for trigger pin and measure echo pulse width.
-// Natasha Kho, Justin Narciso
+// Justin Narciso
 // September 8, 2025
 
 #include <stdint.h>
@@ -11,10 +11,10 @@
 
 uint32_t distance;
 
-#define TRIGGER_PIN 			(*((volatile unsigned long *)0x40005200))  // PB7 is the trigger pin	
-#define ECHO_PIN 					(*((volatile unsigned long *)0x40005100))  // PB6 is the echo pin	
-#define TRIGGER_VALUE 		0x80   				// trigger at bit 7
-#define ECHO_VALUE 				0x40   				// echo at bit 6
+#define TRIGGER_PIN 			(*((volatile unsigned long *)0x40005080))  // PB7 is the trigger pin	
+#define ECHO_PIN 					(*((volatile unsigned long *)0x40005040))  // PB6 is the echo pin	
+#define TRIGGER_VALUE 		0x20   				// trigger at bit 7
+#define ECHO_VALUE 				0x10   				// echo at bit 6
 #define PERIODIC					0x00000002		// bit position for periodic count-down mode
 #define MC_LEN 						0.0625 				// length of one machine cycle in microsecond for 16MHz clock
 #define SOUND_SPEED 			0.0343 				// centimeter per micro-second
@@ -29,17 +29,17 @@ void PortB_Init(void){
   SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOB;     // 1) activate clock for Port B
 	while ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOB)!=SYSCTL_RCGC2_GPIOB){}; // wait for clock to start
 
-	GPIO_PORTB_PCTL_R &= ~0xFF000000; 				// 3) regular GPIO
-  GPIO_PORTB_AMSEL_R &= (uint32_t)~0xC0;    // 4) disable analog function on PA2
-  GPIO_PORTB_DIR_R &= ~0x40;        				// 5) PB6:echo pin, input
-  GPIO_PORTB_DIR_R |= 0x80;         				// 5) PB7:trigger pin, output
-  GPIO_PORTB_AFSEL_R &= ~0xC0;      				// 6) regular port function
-  GPIO_PORTB_DEN_R |= 0xC0;         				// 7) enable digital port
-  GPIO_PORTB_IS_R &= ~0x40;         				// PB6 is edge-sensitive
-  GPIO_PORTB_IBE_R |= 0x40;         				// PB6 is both edges
-  GPIO_PORTB_IEV_R &= ~0x40;        				// PB6 both edge event
-  GPIO_PORTB_ICR_R = 0x40;          				// clear flag 6
-  GPIO_PORTB_IM_R |= 0x40;          				// arm interrupt on PB6
+	GPIO_PORTB_PCTL_R &= ~0x00FF0000; 				// 3) regular GPIO
+  GPIO_PORTB_AMSEL_R &= (uint32_t)~0x30;    // 4) disable analog function on PA2
+  GPIO_PORTB_DIR_R &= ~0x10;        				// 5) PB6:echo pin, input
+  GPIO_PORTB_DIR_R |= 0x20;         				// 5) PB7:trigger pin, output
+  GPIO_PORTB_AFSEL_R &= ~0x30;      				// 6) regular port function
+  GPIO_PORTB_DEN_R |= 0x20;         				// 7) enable digital port
+  GPIO_PORTB_IS_R &= ~0x10;         				// PB6 is edge-sensitive
+  GPIO_PORTB_IBE_R |= 0x10;         				// PB6 is both edges
+  GPIO_PORTB_IEV_R &= ~0x10;        				// PB6 both edge event
+  GPIO_PORTB_ICR_R = 0x10;          				// clear flag 6
+  GPIO_PORTB_IM_R |= 0x10;          				// arm interrupt on PB6
   NVIC_PRI0_R = (NVIC_PRI0_R&0xFFFF1FFF)|0x0000A000; // (g) priority 3
   NVIC_EN0_R = 0x00000002;          				// (h) enable Port B edge interrupt
 }

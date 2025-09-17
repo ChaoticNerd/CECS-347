@@ -1,14 +1,14 @@
 // Timer1.c
 // Runs on LM4F120/TM4C123
 // Use TIMER1A in 16-bit periodic countdown mode to request interrupts at a periodic rate
-// Natasha Kho, Justin Narciso
+// Justin Narciso
 // September 8, 2025
 
 #include "tm4c123gh6pm.h"
 #include <stdint.h>
 
-#define TRIGGER_PIN 						(*((volatile unsigned long *)0x40005200))  // PB7 is the trigger pin	
-#define TRIGGER_VALUE 					0x80   			// trigger at bit 7
+#define TRIGGER_PIN 						(*((volatile unsigned long *)0x40005080))  // PB7 is the trigger pin	
+#define TRIGGER_VALUE 					0x20   			// trigger at bit 7
 
 uint32_t TimeElapsed(void);
 uint32_t TIME;
@@ -29,19 +29,18 @@ void Timer1A_Init(unsigned long period){
   TIMER1_TAPR_R = 15;         	// 5) bus clock prescale
   TIMER1_ICR_R = 0x1;    				// 6) clear TIMER1A timeout flag
   TIMER1_IMR_R = 0x1;    				// 7) arm timeout interrupt
-  NVIC_PRI5_R = (NVIC_PRI5_R&0xFFFF1FFF)|0x00006000; // 8) priority 5
+		
+  //NVIC_PRI5_R = (NVIC_PRI5_R&0xFFFF1FFF)|0x00006000; // 8) priority 5
 	
 	// interrupts enabled in the main program after all devices initialized
-  NVIC_EN0_R = 1<<21;           // 9) enable IRQ 21 in NVIC
-  TIMER1_CTL_R = 0x00000001;    // 10) enable TIMER1A
+  //NVIC_EN0_R = 1<<21;           // 9) enable IRQ 21 in NVIC
+  //TIMER1_CTL_R = 0x00000001;    // 10) enable TIMER1A
 }
 
 void Timer1A_Start(unsigned long period){
 	TIMER1_CTL_R = 0x00000000;
 	TIMER1_TAILR_R = period-1;
-	TIMER1_CTL_R = 0x00000001;
-	//while(TIMER1_TAR_R != 0);
-	
+	TIMER1_CTL_R = 0x00000001;	
 	
 }
 
@@ -49,7 +48,7 @@ void Timer1A_Start(unsigned long period){
 uint32_t Timer1A_Stop(void){
 	TIMER1_CTL_R = 0x00000000; 		// disable TIMER1A
 	uint32_t TIME = (TIMER1_TAILR_R - TIMER1_TAR_R)*(TIMER1_TAPR_R+1);
-	TIMER1_TAR_R = 0x00000000;
+	//TIMER1_TAR_R = 0x00000000;
 	return TIME;
 }
 

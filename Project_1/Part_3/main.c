@@ -1,7 +1,7 @@
 // Project1Part3.c
 // Runs on LM4F120/TM4C123
 // Use GPTM Timer and Edge Interrupt to use Ultrasonic Sensor
-// Natasha Kho, Justin Narciso
+// Justin Narciso
 // September 8, 2025
 
 #include "tm4c123gh6pm.h"
@@ -9,10 +9,10 @@
 #include "PLL.h"
 #include <stdint.h>
 
-#define TRIGGER_PIN 						(*((volatile unsigned long *)0x40005200))  // PB7 is the trigger pin	
-#define ECHO_PIN 								(*((volatile unsigned long *)0x40005100))  // PB6 is the echo pin	
-#define TRIGGER_VALUE 					0x80   			// trigger at bit 7
-#define ECHO_VALUE 							0x40   			// trigger at bit 6
+#define TRIGGER_PIN 						(*((volatile unsigned long *)0x40005080))  // PB7 is the trigger pin	
+#define ECHO_PIN 								(*((volatile unsigned long *)0x40005040))  // PB6 is the echo pin	
+#define TRIGGER_VALUE 					0x20   			// trigger at bit 5
+#define ECHO_VALUE 							0x10   			// trigger at bit 4
 //#define ONE_SHOT								0x00000001	// bit position for one-shot mode
 //#define ONE_SHOT_RELOAD					10					// 2 us
 #define PERIODIC					0x00000002		// bit position for periodic count-down mode
@@ -40,13 +40,18 @@ static volatile uint32_t done=0;
 	Timer1A_Init(PERIODIC_RELOAD); 	// initialize timer1 
   PortB_Init();
 	EnableInterrupts();
+	 Timer1A_Stop();
 
   while(1){
 		done = 0;
 		TRIGGER_PIN &= ~TRIGGER_VALUE;
-		Timer1A_Start(10);
+		Timer1A_Start(20);
+		while((TIMER1_TAR_R != 0));
+		Timer1A_Stop();
 		TRIGGER_PIN |= TRIGGER_VALUE;
-		Timer1A_Start(2);
+		Timer1A_Start(20);
+		while((TIMER1_TAR_R != 0));
+		Timer1A_Stop();
 		TRIGGER_PIN &= ~TRIGGER_VALUE;
 		while(!done);
   }
@@ -55,7 +60,8 @@ static volatile uint32_t done=0;
 
 void GPIOPortB_Handler(void){
 	if (ECHO_PIN == ECHO_VALUE){  				// echo pin rising edge is detected, start timing
-			Timer1A_Start(38000);   // configure for periodic down-count mode
+			Timer1A_Start(38001);   // configure for periodic down-count mode
+		// test val counter
 	}
 	else { 
 		// echo pin falling edge is detected, end timing and calculate distance.
@@ -65,10 +71,10 @@ void GPIOPortB_Handler(void){
 		// The speed of sound is approximately 340 meters per second, 
 		// or  .0343 c/µS.
     // Distance = (echo pulse width * 0.0343)/2; = ((# of mc)*MC_LEN*SOUND_SPEED)/2
-		Timer1A_Stop();
 		//while(!ECHO_PIN);
 		distance = (uint32_t)(Timer1A_Stop()*MC_LEN*SOUND_SPEED)/2;	
+		Timer1A_Stop();
 		done = 1;
 	}
-  GPIO_PORTB_ICR_R = 0x40;      // acknowledge flag 6
+  GPIO_PORTB_ICR_R = 0x20;      // acknowledge flag 6
 }
