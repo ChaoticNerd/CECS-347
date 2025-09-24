@@ -4,39 +4,44 @@
 
 #include "tm4c123gh6pm.h"
 #include <stdint.h>
+#include "Timer1A.h"
 
-#define TRIGGER_PIN 						(*((volatile unsigned long *)0x40005080))  // PB5 is the trigger pin	
-#define TRIGGER_VALUE 					0x20   			// trigger at bit 5
-
-uint32_t TIME;
 
 // ***************** Timer1_Init ****************
 // Activate TIMER1 interrupts to run user task periodically
 // Inputs:  task is a pointer to a user function
 //          period in units (1/clockfreq)
 // Outputs: none
+uint32_t TIME;
 
 void Timer1A_Init(void){
-	SYSCTL_RCGCTIMER_R |= 0x02;   // 0) activate TIMER1
-	while((SYSCTL_RCGCTIMER_R&0x02)!=0x02){}; // wait for clock to start
-	TIMER1_CTL_R = 0x00000000; 		// disable TIMER1A
-	TIMER1_CFG_R = 0x00000004;    // 2) configure for 16-bit mode
-  TIMER1_TAMR_R = 0x00000002;   			// 3) configure for periodic down-count mode
-	TIMER1_TAPR_R = 15;         	// 5) bus clock prescale
-  TIMER1_ICR_R = 0x1;    				// 6) clear TIMER1A timeout flag
-  TIMER1_IMR_R = 0x1;    				// 7) arm timeout interrupt
-  TIMER1_CTL_R = 0x00000001;    // 10) enable TIMER1A
+	SYSCTL_RCGCTIMER_R |= TIMER1_SETUP;   // 0) activate TIMER1
+	while((SYSCTL_RCGCTIMER_R&TIMER1_SETUP)!=TIMER1_SETUP){}; // wait for clock to start
+	TIMER1_CTL_R = TIMER1_CLEAR; 		// disable TIMER1A
+	TIMER1_CFG_R = TIMER1_16BIT;    // 2) configure for 16-bit mode
+  TIMER1_TAMR_R = TIMER1_PCD;   			// 3) configure for periodic down-count mode
+	TIMER1_TAPR_R = TIMER1_PRESCALE;         	// 5) bus clock prescale
+
 }
 
 void Timer1A_Start(unsigned long period){
-	TIMER1_CTL_R = 0x00000000; 		// disable TIMER1A
+	TIMER1_CTL_R = TIMER1_CLEAR; 		// disable TIMER1A
 	TIMER1_TAILR_R = period-1;
-	TIMER1_CTL_R = 0x00000001;
+	TIMER1_CTL_R = TIMER1_ENABLE;
+
+}
+
+void Timer1A_Delay(unsigned long delay){
+	TIMER1_CTL_R = TIMER1_CLEAR; 		// disable TIMER1A
+	TIMER1_TAILR_R = delay-1;
+	TIMER1_CTL_R = TIMER1_ENABLE;
+	while(TIMER1_TAR_R != 0){}
 }
 
 uint32_t Timer1A_Stop(void){
-	TIMER1_CTL_R = 0x00000000;
+	TIMER1_CTL_R = TIMER1_CLEAR;
 	uint32_t TIME = (TIMER1_TAILR_R - TIMER1_TAR_R)*(TIMER1_TAPR_R+1);
-	TIMER1_TAR_R = 0x00000000;
+	TIMER1_TAR_R = TIMER1_CLEAR;
 	return TIME;
 }
+

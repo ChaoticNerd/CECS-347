@@ -1,7 +1,28 @@
 // UART0.c
 // Runs on TM4C123
 // Simple device driver for the UART.
+// Daniel Valvano
+// September 11, 2013
+// Modified by EE345L students Charlie Gough && Matt Hawk
+// Modified by EE345M students Agustinus Darmawan && Mingjie Qiu
 
+/* This example accompanies the book
+   "Embedded Systems: Real Time Interfacing to Arm Cortex M Microcontrollers",
+   ISBN: 978-1463590154, Jonathan Valvano, copyright (c) 2013
+   Program 4.12, Section 4.9.4, Figures 4.26 and 4.40
+
+ Copyright 2013 by Jonathan W. Valvano, valvano@mail.utexas.edu
+    You may use, edit, run or distribute this file
+    as long as the above copyright notice remains
+ THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
+ OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
+ VALVANO SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL,
+ OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+ For more information about my classes, my research, and my books, see
+ http://users.ece.utexas.edu/~valvano/
+ */
+// Modified by Dr. Min He on 9/23/2023
 // U0Rx (VCP receive) connected to PA0
 // U0Tx (VCP transmit) connected to PA1
 
@@ -12,8 +33,12 @@
 #define SYSCTL_RCGCUART_UART0		SYSCTL_RCGCUART_R0
 #define SYSCTL_RCGCGPIO_PORTA		SYSCTL_RCGCGPIO_R0
 
-//------------UART0_Init------------
-// Initialize the UART for 57,600 baud rate (assuming 16 MHz UART clock),
+#define UART0_DISABLE	0
+#define UART0_IBRD	17
+#define UART0_FBRD	23
+
+//------------UART_Init------------
+// Initialize the UART for 115,200 baud rate (assuming 50 MHz UART clock),
 // 8 bit word length, no parity bits, one stop bit, FIFOs enabled
 // Input: none
 // Output: none
@@ -21,11 +46,13 @@ void UART0_Init(void){
   SYSCTL_RCGCUART_R |= SYSCTL_RCGCUART_UART0; // activate UART0
   SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_PORTA; // activate port A
 	
-  UART0_CTL_R = 0;                      // disable UART
-  UART0_IBRD_R = 17;                    // IBRD = int(16,000,000 / (16 * 57600)) = int(17.3611)
-  UART0_FBRD_R = 23;                     // FBRD = int(0.3611 * 64 + 0.5) = 23
+  UART0_CTL_R = UART0_DISABLE;                      // disable UART 
+  UART0_IBRD_R = UART0_IBRD;                    // IBRD = int(50,000,000 / (16 * 115,200)) = int(27.1267), 50 allows accurate divisor
+  UART0_FBRD_R = UART0_FBRD;                     // FBRD = int(0.1267 * 64 + 0.5) = 8
                                         // 8 bit word length (no parity bits, one stop bit,  FIFOs enabled)
   UART0_LCRH_R = UART_LCRH_WLEN_8|UART_LCRH_FEN; // For simulator FIFO has to be enabled.
+	// WLEN specifies that uart will receive 8 bit data words
+	// FEN enables the transmit and recieve FIFOs (first in/ first out buffers)
 	
   UART0_CTL_R |= UART_CTL_RXE|UART_CTL_TXE|UART_CTL_UARTEN;// enable Tx, RX and UART
   GPIO_PORTA_AFSEL_R |= 0x03;           // enable alt funct on PA1-0
@@ -39,6 +66,7 @@ void UART0_Init(void){
 // Output a CR,LF to UART to go to a new line
 // Input: none
 // Output: none
+
 void UART0_OutCRLF(void){
   UART0_OutChar(CR);
   UART0_OutChar(LF);
