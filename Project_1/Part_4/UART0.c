@@ -47,8 +47,8 @@ void UART0_Init(void){
   SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_PORTA; // activate port A
 	
   UART0_CTL_R = UART0_DISABLE;                      // disable UART 
-  UART0_IBRD_R = UART0_IBRD;                    // IBRD = int(50,000,000 / (16 * 115,200)) = int(27.1267), 50 allows accurate divisor
-  UART0_FBRD_R = UART0_FBRD;                     // FBRD = int(0.1267 * 64 + 0.5) = 8
+  UART0_IBRD_R = UART0_IBRD;                    // IBRD = int(16,000,000 / (16 * 57600)) = int(17.3611), 50 allows accurate divisor
+  UART0_FBRD_R = UART0_FBRD;                     // FBRD = int(0.3611 * 64 + 0.5) = 23
                                         // 8 bit word length (no parity bits, one stop bit,  FIFOs enabled)
   UART0_LCRH_R = UART_LCRH_WLEN_8|UART_LCRH_FEN; // For simulator FIFO has to be enabled.
 	// WLEN specifies that uart will receive 8 bit data words

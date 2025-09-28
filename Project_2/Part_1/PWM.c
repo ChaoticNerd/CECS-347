@@ -16,24 +16,24 @@
 // Inputs: None
 // Outputs: None
 // Description: 
-// Initializes the PWM module 0 generator 0 outputs A&B tied to PB76 to be used with the 
-//		L298N motor driver allowing for a variable speed of robot car.
+// Initializes the PWM module 0 generator 0 outputs A&B tied to PB54 to be used with the 
+//		L298N motor driver allowing for a variable speed of robot car. 
 void PWM_PB76_Init(void){
 	if ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOB)==0) {
 		SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOB;	// Activate B clocks
-		while ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOB)==0){};
+		while ((SYSCTL_RCGC2_R & SYSCTL_RCGC2_GPIOB)==0){};
 	}
 	
-	GPIO_PORTB_AFSEL_R |= 0xC0;	// enable alt funct: PB76 for PWM
-  GPIO_PORTB_PCTL_R &= ~0xFF000000; // PWM to be used
-  GPIO_PORTB_PCTL_R |= 0x44000000; // PWM to be used
-  GPIO_PORTB_DEN_R |= 0xC0;	// enable digital I/O 
+	GPIO_PORTB_AFSEL_R |= 0x30;	// enable alt funct: PB45 for PWM
+  GPIO_PORTB_PCTL_R &= ~0x00FF0000; // PWM to be used
+  GPIO_PORTB_PCTL_R |= 0x00440000; // PWM to be used
+  GPIO_PORTB_DEN_R |= 0x30;	// enable digital I/O 
 	
 	// Initializes PWM settings
 	SYSCTL_RCGCPWM_R |= 0x01;	// activate PWM0
-	SYSCTL_RCC_R &= ~0x001E0000; // Clear any previous PWM divider values
+	SYSCTL_RCC_R &= ~0x001E0000; // Clear any previous PWM divider values 
 	
-	// PWM0_0 output A&B Initialization for PB76
+	// PWM0_0 output A&B Initialization for PB54
 	PWM0_0_CTL_R = 0;	// re-loading down-counting mode
 	PWM0_0_GENA_R |= 0xC8;	// low on LOAD, high on CMPA down
 	PWM0_0_GENB_R |= 0xC08;// low on LOAD, high on CMPB down
@@ -42,7 +42,7 @@ void PWM_PB76_Init(void){
 	PWM0_0_CMPB_R = 0;	// count value when output rises
 	
 	PWM0_0_CTL_R |= 0x00000001;	// Enable PWM0 Generator 0 in Countdown mode
-	PWM0_ENABLE_R &= ~0x00000003;	// Disable PB76:PWM0 output 0&1 on initialization
+	PWM0_ENABLE_R &= ~0x00000003;	// Disable PB54:PWM0 output 0&1 on initialization
 }
 
 
@@ -53,7 +53,7 @@ void PWM_PB76_Init(void){
 // Outputs: None 
 // Description: Changes the duty cycles of PB76 by changing the CMP registers
 void PWM_PB76_Duty(unsigned long duty_L, unsigned long duty_R){
-	PWM0_0_CMPA_R = duty_L - 1;	// PB6 count value when output rises
-  PWM0_0_CMPB_R = duty_R - 1;	// PB7 count value when output rises
+	PWM0_0_CMPA_R = duty_L - 1;	// PB4 count value when output rises
+  PWM0_0_CMPB_R = duty_R - 1;	// PB5 count value when output rises
 }
 /////////////////////////////////////////////////////////////////////////////

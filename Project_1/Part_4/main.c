@@ -46,7 +46,6 @@
 void SysTick_Handler(void);
 extern void PortB_Init(void);
 extern void PortF_Init(void);
-extern void GPIOPortB_Handler(void);
 extern void Timer1A_Init(void);
 extern void Timer1A_Start(unsigned long period);
 extern uint32_t Timer1A_Stop(void);
@@ -159,7 +158,7 @@ void GPIOPortB_Handler(void){    // port b handles all distance measurements due
 		done=1;
 		
 	}
-	GPIO_PORTB_ICR_R = PORTB_ICR;      // acknowledge flag 6
+	GPIO_PORTB_ICR_R = PORTB_ICR;      // acknowledge flag 4
 }
 
 void SysTick_Handler(void) {

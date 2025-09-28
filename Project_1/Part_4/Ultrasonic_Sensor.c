@@ -49,6 +49,6 @@ void PortF_Init(void){
 	GPIO_PORTF_ICR_R |= SW1_MASK; 													// Clear Flag0
 	GPIO_PORTF_IM_R |= SW1_MASK;														// Arm interrupt on PF0
 
-	NVIC_EN0_R = PortB_INT;          				// (h) enable Port B edge interrupt
+	NVIC_EN0_R = PortB_INT;          				// (h) enable Port F edge interrupt
 
 }

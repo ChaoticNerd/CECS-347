@@ -19,18 +19,18 @@
 // Dependency: None
 // Inputs: None
 // Outputs: None
-// Description: Initializes PB5432 for use with L298N motor driver direction
+// Description: Initializes PB2376 for use with L298N motor driver direction
 void Car_Dir_Init(void){
 	if ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOB)==0) {
 		SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOB;	// Activate B clocks
 		while ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOB)==0){};
 	}
 		
-  GPIO_PORTB_AMSEL_R &= ~0x3C;	// disable analog function
-	GPIO_PORTB_AFSEL_R &= ~0x3C;	// no alternate function
-  GPIO_PORTB_PCTL_R &= ~0x00FFFF00;	// GPIO clear bit PCTL 
-	GPIO_PORTB_DIR_R |= 0x3C; // output on pin(s)
-  GPIO_PORTB_DEN_R |= 0x3C;	// enable digital I/O on pin(s)
+  GPIO_PORTB_AMSEL_R &= ~0xCC;	// disable analog function
+	GPIO_PORTB_AFSEL_R &= ~0xCC;	// no alternate function
+  GPIO_PORTB_PCTL_R &= ~0xFF00FF00;	// GPIO clear bit PCTL 
+	GPIO_PORTB_DIR_R |= 0xCC; // output on pin(s)
+  GPIO_PORTB_DEN_R |= 0xCC;	// enable digital I/O on pin(s)
 }
 
 // Port F Initialization
