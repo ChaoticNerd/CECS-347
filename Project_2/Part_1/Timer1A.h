@@ -3,9 +3,6 @@
 // Use Timer1A in 16-bit periodic countdown mode to request interrupts at a periodic rate
 
 #include <stdint.h>
-#define TRIGGER_PIN 						(*((volatile unsigned long *)0x40005080))  // PB5 is the trigger pin	
-#define TRIGGER_VALUE 					0x20   			// trigger at bit 5
-
 
 #ifndef __TIMER1INTS_H__ // do not include more than once
 #define __TIMER1INTS_H__

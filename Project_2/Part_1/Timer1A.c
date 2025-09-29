@@ -12,7 +12,6 @@
 // Inputs:  task is a pointer to a user function
 //          period in units (1/clockfreq)
 // Outputs: none
-uint32_t TIME;
 
 void Timer1A_Init(void){
 	SYSCTL_RCGCTIMER_R |= TIMER1_SETUP;   // 0) activate TIMER1
