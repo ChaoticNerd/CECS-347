@@ -26,7 +26,8 @@ int main(void){
   LED_Init();
   Car_Dir_Init();
   PWM_PB76_Init();
-
+	Timer1A_Init();
+	
 	while(1){
 		// 50% duty cycle
 		PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
@@ -35,23 +36,23 @@ int main(void){
 		LED = Green;
 		WHEEL_DIR = FORWARD;
 		PWM0_ENABLE_R |= 0x0000000C; // enable both wheels
-		Delay();
+		Timer1A_Delay(1);
 
 		// stop
 		LED = Dark;
 		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Delay();
+		Timer1A_Delay(1);
 
 		// Enable blue LED, moving backward
 		LED = Blue;
 		WHEEL_DIR = BACKWARD;
 		PWM0_ENABLE_R |= 0x0000000C; // enable both wheels
-		Delay();
+		Timer1A_Delay(1);
 		
 		// stop
 		LED = Dark;
 		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Delay();
+		Timer1A_Delay(1);
 
 		// 20% Duty Cycle: LEFT
 		PWM_PB76_Duty(TWENTY_DUTY, EIGHTY_DUTY);
@@ -61,12 +62,12 @@ int main(void){
 		WHEEL_DIR=FORWARD;
 		PWM0_ENABLE_R |= 0x00000008; // Enable right wheel
 		PWM0_ENABLE_R &= ~0x00000004; // Disable left wheel
-		Delay();
+		Timer1A_Delay(1);
 		
 		// stop
 		LED = Dark;
 		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Delay();
+		Timer1A_Delay(1);
 		
 		
 		// 20% Duty Cycle: RIGHT
@@ -77,12 +78,12 @@ int main(void){
 		WHEEL_DIR=FORWARD;
 		PWM0_ENABLE_R &= ~0x00000008; // Disable right wheel
 		PWM0_ENABLE_R |= 0x00000004; // Enable left wheel
-		Delay();
+		Timer1A_Delay(1);
 		
 		// stop
 		LED = Dark;
 		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Delay();
+		Timer1A_Delay(1);
 
 		// 20% Duty Cycle: LEFT
 		PWM_PB76_Duty(TWENTY_DUTY, EIGHTY_DUTY);
@@ -92,12 +93,12 @@ int main(void){
 		WHEEL_DIR = BACKWARD;
 		PWM0_ENABLE_R &= ~0x00000008; // Disable right wheel
 		PWM0_ENABLE_R |= 0x00000004; // Enable left wheel
-		Delay();
+		Timer1A_Delay(1);
 			
 		// stop
 		LED = Dark;
 		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Delay();
+		Timer1A_Delay(1);
 		
 		// 20% Duty Cycle: RIGHT
 		PWM_PB76_Duty(EIGHTY_DUTY, TWENTY_DUTY);
@@ -107,35 +108,35 @@ int main(void){
 		WHEEL_DIR=BACKWARD;
 		PWM0_ENABLE_R |= 0x00000008; // Enable right wheel
 		PWM0_ENABLE_R &= ~0x00000004; // Disable left wheel
-		Delay();
+		Timer1A_Delay(1);
 
 		// stop
 		LED = Dark;
 		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Delay();
+		Timer1A_Delay(1);
 
-		// 20% Duty Cycle: LEFT
-		PWM_PB76_Duty(TWENTY_DUTY, EIGHTY_DUTY);
+		// 50% Duty Cycle: LEFT
+		PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
 
 		// Left pivot turn
 		LED = Cran;
 		WHEEL_DIR=LEFTPIVOT;
 		PWM0_ENABLE_R |= 0x0000000C; // Enable both wheels
-		Delay();
+		Timer1A_Delay(1);
 
 		// stop
 		LED = Dark;
 		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Delay();
+		Timer1A_Delay(1);
 		
-		// 20% Duty Cycle: RIGHT
-		PWM_PB76_Duty(EIGHTY_DUTY, TWENTY_DUTY);
+		// 50% Duty Cycle: RIGHT
+		PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
 
 		// right pivot turn
 		LED = White;
 		WHEEL_DIR=RIGHTPIVOT;
 		PWM0_ENABLE_R |= 0x0000000C; // Enable both wheels
-		Delay();
+		Timer1A_Delay(1);
 
 		LED = Dark;
 		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels

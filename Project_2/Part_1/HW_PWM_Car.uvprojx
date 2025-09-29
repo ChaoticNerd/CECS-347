@@ -134,7 +134,7 @@
             <UseExternalTool>0</UseExternalTool>
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
-            <Capability>1</Capability>
+            <Capability>0</Capability>
             <DriverSelection>4097</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
@@ -404,6 +404,16 @@
               <FileName>HW_PWM_Car.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\HW_PWM_Car.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer1A.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Timer1A.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer1A.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Timer1A.h</FilePath>
             </File>
           </Files>
         </Group>
