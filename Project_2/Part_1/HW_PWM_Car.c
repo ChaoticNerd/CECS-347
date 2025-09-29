@@ -31,92 +31,92 @@ int main(void){
 	// moving forward
 	LED = Green;
 	WHEEL_DIR = FORWARD;
-	PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+	PWM0_ENABLE_R |= 0x0000000C; // enable both wheels
 	Delay();
 
 	// stop
 	LED = Dark;
-	PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+	PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
 	Delay();
 
 	// Enable blue LED,moving backward
 	LED = Blue;
 	WHEEL_DIR = BACKWARD;
-	PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+	PWM0_ENABLE_R |= 0x0000000C; // enable both wheels
 	Delay();
 	
 	// stop
 	LED = Dark;
-	PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+	PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
 	Delay();
 
 	// Forward left turn
 	LED = Yellow;
 	WHEEL_DIR=FORWARD;
-	PWM0_ENABLE_R |= 0x00000002; // Enable right wheel
-	PWM0_ENABLE_R &= ~0x00000001; // Disable left wheel
+	PWM0_ENABLE_R |= 0x00000008; // Enable right wheel
+	PWM0_ENABLE_R &= ~0x00000004; // Disable left wheel
 	Delay();
 	
 	// stop
 	LED = Dark;
-	PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+	PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
 	Delay();
 
 	// Forward right turn
 	LED = Purple;
 	WHEEL_DIR=FORWARD;
-	PWM0_ENABLE_R &= ~0x00000002; // Disable right wheel
-	PWM0_ENABLE_R |= 0x00000001; // Enable left wheel
+	PWM0_ENABLE_R &= ~0x00000008; // Disable right wheel
+	PWM0_ENABLE_R |= 0x00000004; // Enable left wheel
 	Delay();
 	
 	// stop
 	LED = Dark;
-	PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+	PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
 	Delay();
 
 	// Backward left turn
 	LED = Yellow;
 	WHEEL_DIR = BACKWARD;
-	PWM0_ENABLE_R &= ~0x00000002; // Disable right wheel
-	PWM0_ENABLE_R |= 0x00000001; // Enable left wheel
+	PWM0_ENABLE_R &= ~0x00000008; // Disable right wheel
+	PWM0_ENABLE_R |= 0x00000004; // Enable left wheel
 	Delay();
 		
 	// stop
 	LED = Dark;
-	PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+	PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
 	Delay();
 
 	// Backward right turn
 	LED = Purple;
 	WHEEL_DIR=BACKWARD;
-	PWM0_ENABLE_R |= 0x00000002; // Enable right wheel
-	PWM0_ENABLE_R &= ~0x00000001; // Disable left wheel
+	PWM0_ENABLE_R |= 0x00000008; // Enable right wheel
+	PWM0_ENABLE_R &= ~0x00000004; // Disable left wheel
 	Delay();
 
 	// stop
 	LED = Dark;
-	PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+	PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
 	Delay();
 
 	// Left pivot turn
 	LED = Cran;
 	WHEEL_DIR=LEFTPIVOT;
-	PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+	PWM0_ENABLE_R |= 0x0000000C; // Enable both wheels
 	Delay();
 
 	// stop
 	LED = Dark;
-	PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+	PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
 	Delay();
 
 	// right pivot turn
 	LED = White;
 	WHEEL_DIR=RIGHTPIVOT;
-	PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+	PWM0_ENABLE_R |= 0x0000000C; // Enable both wheels
 	Delay();
 
 	LED = Dark;
-	PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+	PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
 	
   while(1){}
 }

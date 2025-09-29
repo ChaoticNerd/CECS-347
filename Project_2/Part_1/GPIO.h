@@ -4,7 +4,7 @@
 // Description: 
 /////////////////////////////////////////////////////////////////////////////
 #define LED (*((volatile unsigned long *)0x40025038))  // use onboard three LEDs: PF321
-#define WHEEL_DIR (*((volatile unsigned long *)0x400050F0)) // PB5432 are the four direction pins for L298
+#define WHEEL_DIR (*((volatile unsigned long *)0x40005330)) // PB7632 are the four direction pins for L298
 
 ////////// Constants //////////  
 // Color    LED(s) PortF
@@ -29,10 +29,10 @@
 // Constant definitions based on the following hardware interface:
 // PB5432 are used for direction control on L298.
 // Motor 1 is connected to the left wheel, Motor 2 is connected to the right wheel.
-#define FORWARD 0x28
-#define BACKWARD 0x14
-#define LEFTPIVOT 0x18
-#define RIGHTPIVOT 0x24
+#define FORWARD 0x88 			// 10XX10	
+#define BACKWARD 0xCC 		// 11XX11
+#define LEFTPIVOT 0xC8 		// 11XX10
+#define RIGHTPIVOT 0x8C 	// 10XX11
 
 //////////////////////1. Declarations Section////////////////////////////////
 ////////// Function Prototypes //////////

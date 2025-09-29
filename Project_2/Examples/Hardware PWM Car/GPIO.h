@@ -29,10 +29,10 @@
 // Constant definitions based on the following hardware interface:
 // PB5432 are used for direction control on L298.
 // Motor 1 is connected to the left wheel, Motor 2 is connected to the right wheel.
-#define FORWARD 0x28
-#define BACKWARD 0x14
-#define LEFTPIVOT 0x18
-#define RIGHTPIVOT 0x24
+#define FORWARD 0x28 //PB5 3
+#define BACKWARD 0x14 // PB4 2 
+#define LEFTPIVOT 0x18 // PB4 3
+#define RIGHTPIVOT 0x24// PB5 2
 
 //////////////////////1. Declarations Section////////////////////////////////
 ////////// Function Prototypes //////////
