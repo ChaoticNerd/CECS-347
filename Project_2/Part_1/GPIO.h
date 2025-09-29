@@ -18,15 +18,6 @@
 // pink     R-B    0x06
 // Cran     -GB    0x0C
 
-#define Dark    	0x00
-#define Red     	0x02
-#define Blue    	0x04
-#define Green   	0x08
-#define Yellow  	0x0A
-#define Cran      0x0C
-#define White   	0x0E
-#define Purple  	0x06
-
 // Constant definitions based on the following hardware interface:
 // PB5432 are used for direction control on L298.
 // Motor 1 is connected to the left wheel, Motor 2 is connected to the right wheel.
@@ -36,8 +27,8 @@
 #define RIGHTPIVOT 0x8C 	// 10XX11
 #define SW1_MASK		 	0x10          // onboard switch PF4
 
-#define Modify_PF1_4 0x1F
-#define PORTF_CLEAR_PCTL 0x000FFFFF
+#define Modify_PF4 0x10
+#define PORTF_CLEAR_PCTL 0x000F0000
 #define PORTF_PUR 0x10
 #define PORTF_IN 0x11
 #define PORTF_OUT 0x0E
