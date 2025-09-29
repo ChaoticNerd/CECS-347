@@ -46,4 +46,27 @@ void LED_Init(void){ volatile unsigned long delay;
   LED = Dark;                       // Turn off all LEDs.
 }
 
+void PortF_Init(void){ 
+  SYSCTL_RCGCGPIO_R |= SYSCTL_RCGC2_GPIOF;     	// activate F clock
+	while ((SYSCTL_RCGCGPIO_R&SYSCTL_RCGC2_GPIOF)!=SYSCTL_RCGC2_GPIOF){} // wait for the clock to be ready
+		
+	GPIO_PORTF_CR_R |= Modify_PF1_4;         		// allow changes to PF4-0 :11111->0x1F     
+  GPIO_PORTF_AMSEL_R &= ~Modify_PF1_4;        // disable analog function
+  GPIO_PORTF_PCTL_R &= ~PORTF_CLEAR_PCTL; 	// GPIO clear bit PCTL  
+  GPIO_PORTF_DIR_R &= ~PORTF_IN;          // PF4,PF0 input   
+  GPIO_PORTF_DIR_R |= PORTF_OUT;          	// PF3,PF2,PF1 output   
+	GPIO_PORTF_AFSEL_R &= ~Modify_PF1_4;        // no alternate function
+  GPIO_PORTF_PUR_R |= PORTF_PUR;          	// enable pullup resistors on PF4,PF0       
+  GPIO_PORTF_DEN_R |= Modify_PF1_4;          	// enable digital pins PF4-PF0
+
+	GPIO_PORTF_IS_R &= ~SW1_MASK;														// PF0 is edge-sensitive
+	GPIO_PORTF_IBE_R &= ~SW1_MASK;													// PF0 is not both edges
+	GPIO_PORTF_IEV_R |= SW1_MASK; 													// PF0 rising edge event 
+	GPIO_PORTF_ICR_R |= SW1_MASK; 													// Clear Flag0
+	GPIO_PORTF_IM_R |= SW1_MASK;														// Arm interrupt on PF0
+
+	NVIC_EN0_R = PORTF_IRQ;   				// (h) enable Port F edge interrupt
+
+}
+
 /////////////////////////////////////////////////////////////////////////////

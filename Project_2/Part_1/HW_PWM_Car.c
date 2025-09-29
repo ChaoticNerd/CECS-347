@@ -8,6 +8,8 @@
 #include "tm4c123gh6pm.h"
 #include "PWM.h"
 #include "GPIO.h"
+#include <stdint.h>
+#include "utils.h"
 /////////////////////////////////////////////////////////////////////////////
 
 //////////////////////2. Declarations Section////////////////////////////////
@@ -21,8 +23,16 @@ void WaitForInterrupt(void);
 void Delay(void);
 void Timer1A_Init(void);
 void Timer1A_Delay(unsigned long delay);
+void PortF_Init(void);
+void Stop_Car(void);
 
+// Higher prescale = lower reload value
+// thus prescale of 249
+// 16000000/(249 + 1) = 64000
 const long PRESCALE_VALUE = 64000;
+
+volatile uint32_t SW1_Pressed = 0;
+
 //////////////////////3. Subroutines Section/////////////////////////////////
 // MAIN: This main is meant for the command configuration of the hc05.
 int main(void){ 
@@ -30,131 +40,131 @@ int main(void){
   Car_Dir_Init();
   PWM_PB76_Init();
 	Timer1A_Init();
+	PortF_Init();
 	
 	while(1){
-		// 50% duty cycle
-		// Moving Foward
-		PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
-		LED = Green;
-		WHEEL_DIR = FORWARD;
-		PWM0_ENABLE_R |= 0x0000000C; // enable both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
+		
+		if(SW1_Pressed){
+			// 50% duty cycle
+			// Moving Foward
+			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
+			LED = Green;
+			WHEEL_DIR = FORWARD;
+			PWM0_ENABLE_R |= BOTH_WHEEL; // enable both wheels
+			Timer1A_Delay(PRESCALE_VALUE);
 
-		// STOP
-		LED = Dark;
-		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
+			// STOP
+			LED = Dark;
+			Stop_Car();
 
-		// Enable blue LED, moving backward
-		LED = Blue;
-		WHEEL_DIR = BACKWARD;
-		PWM0_ENABLE_R |= 0x0000000C; // enable both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
-		
-		// stop
-		LED = Dark;
-		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
-
-		// 20% Duty Cycle: LEFT
-		PWM_PB76_Duty(EIGHTY_DUTY, TWENTY_DUTY);
-		
-		// Forward left turn
-		LED = Yellow;
-		WHEEL_DIR=FORWARD;
-		PWM0_ENABLE_R |= 0x00000008; // Enable right wheel
-		PWM0_ENABLE_R &= ~0x00000004; // Disable left wheel
-		Timer1A_Delay(PRESCALE_VALUE);
-		
-		// stop
-		LED = Dark;
-		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
-		
-		
-		// 20% Duty Cycle: RIGHT
-		PWM_PB76_Duty(TWENTY_DUTY,EIGHTY_DUTY);
-		
-		// Forward right turn
-		LED = Purple;
-		WHEEL_DIR=FORWARD;
-		PWM0_ENABLE_R &= ~0x00000008; // Disable right wheel
-		PWM0_ENABLE_R |= 0x00000004; // Enable left wheel
-		Timer1A_Delay(PRESCALE_VALUE);
-		
-		// stop
-		LED = Dark;
-		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
-
-		// 20% Duty Cycle: LEFT
-		PWM_PB76_Duty(TWENTY_DUTY, EIGHTY_DUTY);
-		
-		// Backward left turn
-		LED = Yellow;
-		WHEEL_DIR = BACKWARD;
-		PWM0_ENABLE_R &= ~0x00000008; // Disable right wheel
-		PWM0_ENABLE_R |= 0x00000004; // Enable left wheel
-		Timer1A_Delay(PRESCALE_VALUE);
+			// Enable blue LED, moving backward
+			LED = Blue;
+			WHEEL_DIR = BACKWARD;
+			PWM0_ENABLE_R |= BOTH_WHEEL; // enable both wheels
+			Timer1A_Delay(PRESCALE_VALUE);
 			
-		// stop
-		LED = Dark;
-		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
-		
-		// 20% Duty Cycle: RIGHT
-		PWM_PB76_Duty(EIGHTY_DUTY, TWENTY_DUTY);
-		
-		// Backward right turn
-		LED = Purple;
-		WHEEL_DIR=BACKWARD;
-		PWM0_ENABLE_R |= 0x00000008; // Enable right wheel
-		PWM0_ENABLE_R &= ~0x00000004; // Disable left wheel
-		Timer1A_Delay(PRESCALE_VALUE);
+			// stop
+			LED = Dark;
+			Stop_Car();
 
-		// stop
-		LED = Dark;
-		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
+			// 20% Duty Cycle: LEFT
+			PWM_PB76_Duty(EIGHTY_DUTY, TWENTY_DUTY);
+			
+			// Forward left turn
+			LED = Yellow;
+			WHEEL_DIR=FORWARD;
+			PWM0_ENABLE_R |= RIGHT_WHEEL; // Enable right wheel
+			PWM0_ENABLE_R &= ~LEFT_WHEEL; // Disable left wheel
+			Timer1A_Delay(PRESCALE_VALUE);
+			
+			// stop
+			LED = Dark;
+			Stop_Car();
+			
+			
+			// 20% Duty Cycle: RIGHT
+			PWM_PB76_Duty(TWENTY_DUTY,EIGHTY_DUTY);
+			
+			// Forward right turn
+			LED = Purple;
+			WHEEL_DIR=FORWARD;
+			PWM0_ENABLE_R &= ~RIGHT_WHEEL; // Disable right wheel
+			PWM0_ENABLE_R |= LEFT_WHEEL; // Enable left wheel
+			Timer1A_Delay(PRESCALE_VALUE);
+			
+			// stop
+			LED = Dark;
+			Stop_Car();
 
-		// 50% Duty Cycle: LEFT
-		PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
+			// 20% Duty Cycle: LEFT
+			PWM_PB76_Duty(TWENTY_DUTY, EIGHTY_DUTY);
+			
+			// Backward left turn
+			LED = Yellow;
+			WHEEL_DIR = BACKWARD;
+			PWM0_ENABLE_R &= ~RIGHT_WHEEL; // Disable right wheel
+			PWM0_ENABLE_R |= LEFT_WHEEL; // Enable left wheel
+			Timer1A_Delay(PRESCALE_VALUE);
+				
+			// stop
+			LED = Dark;
+			Stop_Car();
+			
+			// 20% Duty Cycle: RIGHT
+			PWM_PB76_Duty(EIGHTY_DUTY, TWENTY_DUTY);
+			
+			// Backward right turn
+			LED = Purple;
+			WHEEL_DIR=BACKWARD;
+			PWM0_ENABLE_R |= RIGHT_WHEEL; // Enable right wheel
+			PWM0_ENABLE_R &= ~LEFT_WHEEL; // Disable left wheel
+			Timer1A_Delay(PRESCALE_VALUE);
 
-		// Left pivot turn
-		LED = Cran;
-		WHEEL_DIR=LEFTPIVOT;
-		PWM0_ENABLE_R |= 0x0000000C; // Enable both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
+			// stop
+			LED = Dark;
+			Stop_Car();
 
-		// stop
-		LED = Dark;
-		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
-		
-		// 50% Duty Cycle: RIGHT
-		PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
+			// 50% Duty Cycle: LEFT
+			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
 
-		// right pivot turn
-		LED = White;
-		WHEEL_DIR=RIGHTPIVOT;
-		PWM0_ENABLE_R |= 0x0000000C; // Enable both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
+			// Left pivot turn
+			LED = Cran;
+			WHEEL_DIR=LEFTPIVOT;
+			PWM0_ENABLE_R |= BOTH_WHEEL; // Enable both wheels
+			Timer1A_Delay(PRESCALE_VALUE);
 
-		LED = Dark;
-		PWM0_ENABLE_R &= ~0x0000000C; // stop both wheels
-		Timer1A_Delay(PRESCALE_VALUE);
+			Stop_Car();
+			
+			// 50% Duty Cycle: RIGHT
+			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
 
+			// right pivot turn
+			LED = White;
+			WHEEL_DIR=RIGHTPIVOT;
+			PWM0_ENABLE_R |= BOTH_WHEEL; // Enable both wheels
+			Timer1A_Delay(PRESCALE_VALUE);
+
+			LED = Dark;
+			Stop_Car();
+			SW1_Pressed = 0;
+			}
 	}
 }
 
-// Subroutine to wait 0.25 sec
-// Inputs: None
-// Outputs: None
-// Notes: ...
-void Delay(void){
-	unsigned long volatile time;
-  time = 727240*500/91;  // 0.25sec
-  while(time){
-		time--;
-  }
+void Stop_Car(void){
+	// stop
+		LED = Dark;
+		PWM0_ENABLE_R &= ~RIGHT_WHEEL; // stop both wheels
+		Timer1A_Delay(PRESCALE_VALUE);
+}
+
+ void GPIOPortF_Handler(void){   // handles everything with leds and the switch
+	// simple debouncing code
+	for (uint32_t time=0;time<160000;time++) {}
+	
+	if (GPIO_PORTF_RIS_R & SW1_MASK) {		
+		GPIO_PORTF_ICR_R |= SW1_MASK;  
+		SW1_Pressed = 1; // acknowledge flag4: 00010000 for switch 1
+	}		
+	
 }
