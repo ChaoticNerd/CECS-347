@@ -1,7 +1,11 @@
 /////////////////////////////////////////////////////////////////////////////
-// Course Number: CECS 347
-// Assignment: Example project for Hardware PWM controlled Car
-// Description: 
+// Assignment: Project 2, Part 1
+// @author: Justin Narciso
+// @author: Natasha Kho
+// @date 10/1/2025
+// CSULB Computer Engineering
+// Description: Has all the necessary components to run the access the GPIO pins
+// 							Controls the movement of the romi car by turning motors off/on
 /////////////////////////////////////////////////////////////////////////////
 #define LED (*((volatile unsigned long *)0x40025038))  // use onboard three LEDs: PF321
 #define WHEEL_DIR (*((volatile unsigned long *)0x40005330)) // PB7632 are the four direction pins for L298

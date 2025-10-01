@@ -1,7 +1,12 @@
 /////////////////////////////////////////////////////////////////////////////
 // Course Number: CECS 347
-// Assignment: Example project for Hardware PWM controlled Car
-// Description: 
+// Assignment: Project 2, Part 1
+// @author: Justin Narciso
+// @author: Natasha Kho
+// @date 10/1/2025
+// CSULB Computer Engineering
+// Description: main file for Project 2, P1. It calls all the other functions
+// to keep the motors running after the switch is pressed. Contains the handlers
 /////////////////////////////////////////////////////////////////////////////
 
 //////////////////////1. Pre-processor Directives Section////////////////////

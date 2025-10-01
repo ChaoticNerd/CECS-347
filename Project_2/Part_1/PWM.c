@@ -1,7 +1,13 @@
 /////////////////////////////////////////////////////////////////////////////
 // Course Number: CECS 347
-// Assignment: Example project for Hardware PWM controlled Car
-// Description: 
+// Assignment: Project 2, Part 1
+// @author: Justin Narciso
+// @author: Natasha Kho
+// @date 10/1/2025
+// CSULB Computer Engineering
+// Description: Contains the initialization for the PWM hardware module on 
+// 							the tm4c. Also has the function to control the duty
+//							cycles.
 /////////////////////////////////////////////////////////////////////////////
 
 //////////////////////1. Pre-processor Directives Section////////////////////

@@ -1,7 +1,11 @@
 /////////////////////////////////////////////////////////////////////////////
-// Course Number: CECS 347
-// Assignment: Example project for Hardware PWM controlled Car
-// Description: 
+// Assignment: Project 2, Part 1
+// @author: Justin Narciso
+// @author: Natasha Kho
+// @date 10/1/2025
+// CSULB Computer Engineering
+// Description: Has all the necessary components to run the access the GPIO pins
+// 							Controls the movement of the romi car by turning motors off/on
 /////////////////////////////////////////////////////////////////////////////
 
 //////////////////////1. Pre-processor Directives Section////////////////////

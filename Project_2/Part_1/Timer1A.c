@@ -1,6 +1,13 @@
-// Timer1A.c
-// Runs on LM4F120/TM4C123
-// Use TIMER1A in 16-bit periodic countdown mode to request interrupts at a periodic rate
+/////////////////////////////////////////////////////////////////////////////
+// Course Number: CECS 347
+// Assignment: Project 2, Part 1
+// @author: Justin Narciso
+// @author: Natasha Kho
+// @date 10/1/2025
+// CSULB Computer Engineering
+// Description: Uses the TIMER1A 16-bit periodic countdown as a regular timer
+//							Creates the delays; no actual interrupts
+/////////////////////////////////////////////////////////////////////////////
 
 #include "tm4c123gh6pm.h"
 #include <stdint.h>
