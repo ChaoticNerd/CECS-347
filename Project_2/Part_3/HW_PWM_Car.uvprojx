@@ -401,11 +401,6 @@
               <FilePath>.\PWM.c</FilePath>
             </File>
             <File>
-              <FileName>HW_PWM_Car.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\HW_PWM_Car.c</FilePath>
-            </File>
-            <File>
               <FileName>Timer1A.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Timer1A.c</FilePath>
@@ -416,9 +411,24 @@
               <FilePath>.\Timer1A.h</FilePath>
             </File>
             <File>
-              <FileName>utils.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\utils.h</FilePath>
+              <FileName>ADC0SS3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ADC0SS3.c</FilePath>
+            </File>
+            <File>
+              <FileName>FollowMe.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FollowMe.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>PLL.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\PLL.c</FilePath>
             </File>
           </Files>
         </Group>

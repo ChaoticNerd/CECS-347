@@ -7,10 +7,13 @@
 // March 12, 2024
 
 // This is an example program to show how to use hardware PWM on TM4C123.
+#include "tm4c123gh6pm.h"
 #include <stdint.h>
-#include "Motors.h"
+#include "GPIO.h"
 #include "ADC0SS3.h"
 #include "PLL.h"
+#include "ADC0SS3.h"
+#include "PWM.h"
 
 // move the following constant definitions to ADC0SS3.h
 #define TOO_FAR 		(0)  // replace the zero with the ADC output value for maximum distance
@@ -18,12 +21,18 @@
 #define TOO_CLOSE 	(0)  // replace the zero with the ADC output value for minimum distance
 
 void follow_me(void);
+void stop_the_car(void);
+void move_backward(void);
+void move_forward(void);
 
 int main(void){	
 	PLL_Init();									// 16MHz system clock
-	ADC0_Seq3_Ch9_Init();       // ADC initialization PE4/AIN9
-	Motors_Init();              // initialize PB32: left direction pins, PB76: right direction pins
+	ADC0_InitSWTriggerSeq3_Ch7();       // ADC initialization PE4/AIN9
+	ADC0_InitSWTriggerSeq3_Ch1();
+	Car_Dir_Init();              // initialize PB32: left direction pins, PB76: right direction pins
 															// PB4:Left wheel, PB5:Right wheel
+	LED_Init();
+	
 	while(1){
 	  stop_the_car();
 		follow_me();
@@ -58,4 +67,19 @@ void follow_me(void) {
 			stop_the_car();
 		}
   }	
+}
+
+void move_forward(void){
+			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
+			WHEEL_DIR = FORWARD;
+			PWM0_ENABLE_R |= BOTH_WHEEL; // enable both wheels
+}
+
+void stop_the_car(void){
+		PWM0_ENABLE_R &= ~BOTH_WHEEL; // stop both wheels
+}
+
+void move_backward(void){
+			WHEEL_DIR = BACKWARD;
+			PWM0_ENABLE_R |= BOTH_WHEEL; // enable both wheels
 }

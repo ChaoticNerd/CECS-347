@@ -38,6 +38,11 @@
 #define PORTF_OUT 0x0E
 #define PORTF_IRQ 0x40000000
 
+//Wheels 
+#define BOTH_WHEEL 0x0000000C;
+#define RIGHT_WHEEL 0x00000008;
+#define LEFT_WHEEL 0x00000004;
+
 //////////////////////1. Declarations Section////////////////////////////////
 ////////// Function Prototypes //////////
 // Dependency: None

@@ -21,6 +21,7 @@
 
 #include "tm4c123gh6pm.h"
 #include <stdint.h>
+#include "ADC0SS3.h"
 
 #define ADC0_PSSI_SS3 0x0008    // start sample sequencer 3
 #define ADC0_ISC_SS3  0x0008    // acknowledge sample sequencer 3 interrupt
@@ -101,4 +102,40 @@ uint16_t ADC0_InSeq3(void){
   result = ADC0_SSFIFO3_R&0xFFF;   // 3) read result
   ADC0_ISC_R = ADC0_ISC_SS3;             // 4) acknowledge completion
   return result;
+}
+
+// This function samples one value, apply a software filter to the value and
+// returns filter result.  Some kind of filtering is required because 
+// the IR distance sensors output occasional erroneous spikes.  
+// This function implements a median filter:
+// y(n) = median(x(n), x(n-1), x(n-2))
+// Assumes: ADC has already been initialized. 
+uint16_t ReadADCMedianFilter(void){
+  static uint16_t oldest=0, middle=0;	
+  uint16_t newest;
+	uint16_t NewValue;
+	
+  newest = ADC0_InSeq3();  // read one value
+  NewValue = median(newest, middle, oldest);
+  oldest = middle; 
+  middle = newest; 
+	return NewValue;
+}
+
+// Median function: 
+// A helper function for ReadADCMedianFilter()
+uint16_t median(uint16_t u1, uint16_t u2, uint16_t u3){
+uint16_t result;
+	
+  if(u1>u2)
+    if(u2>u3)   result=u2;     // u1>u2,u2>u3       u1>u2>u3
+      else
+        if(u1>u3) result=u3;   // u1>u2,u3>u2,u1>u3 u1>u3>u2
+        else      result=u1;   // u1>u2,u3>u2,u3>u1 u3>u1>u2
+  else
+    if(u3>u2)   result=u2;     // u2>u1,u3>u2       u3>u2>u1
+      else
+        if(u1>u3) result=u1;   // u2>u1,u2>u3,u1>u3 u2>u1>u3
+        else      result=u3;   // u2>u1,u2>u3,u3>u1 u2>u3>u1
+  return(result);
 }

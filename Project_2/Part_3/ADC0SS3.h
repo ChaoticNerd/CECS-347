@@ -43,3 +43,7 @@ void ADC0_InitSWTriggerSeq3_Ch1(void);
 // Input: none
 // Output: 12-bit result of ADC conversion
 uint16_t ADC0_InSeq3(void);
+
+uint16_t ReadADCMedianFilter(void);
+
+uint16_t median(uint16_t u1, uint16_t u2, uint16_t u3);

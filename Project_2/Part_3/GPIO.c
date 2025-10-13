@@ -47,7 +47,7 @@ void LED_Init(void){ volatile unsigned long delay;
   GPIO_PORTF_DIR_R |= 0x0E;         // 6) PF1-PF3 output
   GPIO_PORTF_AFSEL_R &= ~0x0E;      // 7) no alternate function     
   GPIO_PORTF_DEN_R |= 0x0E;         // 8) enable digital pins PF3-PF1
-  LED = Dark;                       // Turn off all LEDs.
+  //LED = Dark;                       // Turn off all LEDs.
 }
 
 void PortF_Init(void){ 
