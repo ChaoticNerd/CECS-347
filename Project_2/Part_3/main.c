@@ -24,7 +24,7 @@ void System_Init(void);
 void object_follower(void);
 void wall_follower(void);
 
-enum robot_modes mode=INACTIVE;
+enum robot_modes mode = INACTIVE;
 
 int main(void){	
 	System_Init();

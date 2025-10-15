@@ -134,7 +134,7 @@
             <UseExternalTool>0</UseExternalTool>
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
-            <Capability>0</Capability>
+            <Capability>1</Capability>
             <DriverSelection>4097</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
@@ -399,11 +399,6 @@
               <FileName>Timer1A.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Timer1A.c</FilePath>
-            </File>
-            <File>
-              <FileName>FollowMe.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FollowMe.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>

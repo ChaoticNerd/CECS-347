@@ -2,7 +2,6 @@
 ".\startup.o"
 ".\pwm.o"
 ".\timer1a.o"
-".\followme.o"
 ".\main.o"
 ".\pll.o"
 ".\adc1ss1.o"
