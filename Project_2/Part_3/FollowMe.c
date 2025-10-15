@@ -16,9 +16,7 @@
 #include "PWM.h"
 
 // move the following constant definitions to ADC0SS3.h
-#define TOO_FAR 		(0)  // replace the zero with the ADC output value for maximum distance
-#define FOLLOW_DIST (0)  // replace the zero with the ADC output value for object following distance
-#define TOO_CLOSE 	(0)  // replace the zero with the ADC output value for minimum distance
+
 
 void follow_me(void);
 void stop_the_car(void);
@@ -67,19 +65,4 @@ void follow_me(void) {
 			stop_the_car();
 		}
   }	
-}
-
-void move_forward(void){
-			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
-			WHEEL_DIR = FORWARD;
-			PWM0_ENABLE_R |= BOTH_WHEEL; // enable both wheels
-}
-
-void stop_the_car(void){
-		PWM0_ENABLE_R &= ~BOTH_WHEEL; // stop both wheels
-}
-
-void move_backward(void){
-			WHEEL_DIR = BACKWARD;
-			PWM0_ENABLE_R |= BOTH_WHEEL; // enable both wheels
 }

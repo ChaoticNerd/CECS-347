@@ -4,17 +4,9 @@
 // @author: Natasha Kho
 // @date 10/06/2025
 // CSULB Computer Engineering
-// Description: Initializes ADC0 SS3 
+// Description: Initializes ADC1 SS1
 // 							
 /////////////////////////////////////////////////////////////////////////////
-// ADCPD0SS3.c
-// Runs on TM4C123
-// Provide functions that initialize ADC0 SS3 to be triggered by
-// software and trigger a conversion, wait for it to finish,
-// and return the result.
-// Daniel Valvano
-// October 20, 2013
-// Modified by Min He, 10/09/2022
 
 // This file provide initialization function for two analog channels:
 // PE2/AIN1 and PD0/AIN7
@@ -23,9 +15,9 @@
 #include <stdint.h>
 #include "ADC0SS3.h"
 
-#define ADC0_PSSI_SS3 0x0008    // start sample sequencer 3
-#define ADC0_ISC_SS3  0x0008    // acknowledge sample sequencer 3 interrupt
-#define ADC0_RIS_SS3  0x08
+#define TOO_FAR 		(1613)  // replace the zero with the ADC output value for maximum distance
+#define FOLLOW_DIST (1979)  // replace the zero with the ADC output value for object following distance
+#define TOO_CLOSE 	(3600)  // replace the zero with the ADC output value for minimum distance
 
 // This initialization function sets up the ADC according to the
 // following parameters.  Any parameters not explicitly listed

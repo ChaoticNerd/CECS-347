@@ -391,11 +391,6 @@
               <FilePath>.\startup.s</FilePath>
             </File>
             <File>
-              <FileName>GPIO.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\GPIO.c</FilePath>
-            </File>
-            <File>
               <FileName>PWM.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\PWM.c</FilePath>
@@ -429,6 +424,16 @@
               <FileName>PLL.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\PLL.c</FilePath>
+            </File>
+            <File>
+              <FileName>motors.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\motors.h</FilePath>
+            </File>
+            <File>
+              <FileName>SW_LED.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\SW_LED.h</FilePath>
             </File>
           </Files>
         </Group>

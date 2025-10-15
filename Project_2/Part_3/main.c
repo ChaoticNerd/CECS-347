@@ -1,161 +1,62 @@
-///////////////////////////////////////////////////////////////////////////////
-//// Course Number: CECS 347
-//// Assignment: Project 2, Part 1
-//// @author: Justin Narciso
-//// @author: Natasha Kho
-//// @date 10/1/2025
-//// CSULB Computer Engineering
-//// Description: main file for Project 2, P1. It calls all the other functions
-//// to keep the motors running after the switch is pressed. Contains the handlers
-///////////////////////////////////////////////////////////////////////////////
+// FollowingRobot.c
+// Runs TM4C123
+// Starter program CECS 347 project 2 - A Follwoing Robot
+// by Min He, 03/17/2024
 
-////////////////////////1. Pre-processor Directives Section////////////////////
-//#include "tm4c123gh6pm.h"
-//#include "PWM.h"
-//#include "GPIO.h"
-//#include <stdint.h>
-//#include "utils.h"
-///////////////////////////////////////////////////////////////////////////////
+#include "tm4c123gh6pm.h"
+#include <stdint.h>
+#include "ADC1SS1.h"   // NEED TO USE THIS
+#include "motors.h"			 // GPIO.h == Motors.h
+#include "SW_LED.h"		 // GPIO.h == SW_LED.h
+#include "PLL.h"
 
-////////////////////////2. Declarations Section////////////////////////////////
+enum robot_modes {INACTIVE, OBJECT_FOLLOWER, WALL_FOLLOWER};
 
-//////////// Local Global Variables //////////
+// Function prototypes
+// external functions
+extern void DisableInterrupts(void);
+extern void EnableInterrupts(void);  // Enable interrupts
+extern void WaitForInterrupt(void);  // low power mode
 
-//////////// Function Prototypes //////////
-//void DisableInterrupts(void);
-//void EnableInterrupts(void);
-//void WaitForInterrupt(void);
-//void Delay(void);
-//void Timer1A_Init(void);
-//void Timer1A_Delay(unsigned long delay);
-//void PortF_Init(void);
-//void Stop_Car(void);
+// functions defined in this file
+void System_Init(void);
+void object_follower(void);
+void wall_follower(void);
 
-//// Higher prescale = lower reload value
-//// thus prescale of 249
-//// 16000000/(249 + 1) = 64000
-//const long PRESCALE_VALUE = 64000;
+enum robot_modes mode=INACTIVE;
 
-//volatile uint32_t SW1_Pressed = 0;
+int main(void){	
+	System_Init();
+	
+  while(1){
+		switch (mode) {
+			case OBJECT_FOLLOWER:
+				object_follower();
+			  break;
+			case WALL_FOLLOWER:
+				wall_follower();
+			  break;
+			default:
+				WaitForInterrupt();
+			  break;				
+		}
+  }
+}
 
-////////////////////////3. Subroutines Section/////////////////////////////////
-//// MAIN: This main is meant for the command configuration of the hc05.
-//int main(void){ 
-//  LED_Init();
-//  Car_Dir_Init();
-//  PWM_PB76_Init();
-//	Timer1A_Init();
-//	PortF_Init();
-//	
-//	while(1){
-//		
-//		if(SW1_Pressed){
-//			// 50% duty cycle
-//			// Moving Foward
-//			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
-//			WHEEL_DIR = FORWARD;
-//			PWM0_ENABLE_R |= BOTH_WHEEL; // enable both wheels
-//			Timer1A_Delay(PRESCALE_VALUE);
+void System_Init(void){
+	DisableInterrupts();
+  PLL_Init();             // set system clock to 16 MHz 
+	ADC1_SS1_Init();       	// Initialize ADC1 Sample sequencer 1 
+	Motors_Init();
+	LED_Init();							// Initialize LED in SW_LED.h
+  SW_Init();          		// inititlize switches in SW_LED.h
+  EnableInterrupts();	
+}
 
-//			// STOP
-//			Stop_Car();
+void object_follower(void)
+{
+}
 
-//			// Enable blue LED, moving backward
-//			WHEEL_DIR = BACKWARD;
-//			PWM0_ENABLE_R |= BOTH_WHEEL; // enable both wheels
-//			Timer1A_Delay(PRESCALE_VALUE);
-//			
-//			// stop
-//			Stop_Car();
+void wall_follower(void){
+}
 
-//			// 20% Duty Cycle: LEFT
-//			PWM_PB76_Duty(EIGHTY_DUTY, TWENTY_DUTY);
-//			
-//			// Forward left turn
-//			WHEEL_DIR=FORWARD;
-//			PWM0_ENABLE_R |= RIGHT_WHEEL; // Enable right wheel
-//			PWM0_ENABLE_R &= ~LEFT_WHEEL; // Disable left wheel
-//			Timer1A_Delay(PRESCALE_VALUE);
-//			
-//			// stop
-//			Stop_Car();
-//			
-//			
-//			// 20% Duty Cycle: RIGHT
-//			PWM_PB76_Duty(TWENTY_DUTY,EIGHTY_DUTY);
-//			
-//			// Forward right turn
-//			WHEEL_DIR=FORWARD;
-//			PWM0_ENABLE_R &= ~RIGHT_WHEEL; // Disable right wheel
-//			PWM0_ENABLE_R |= LEFT_WHEEL; // Enable left wheel
-//			Timer1A_Delay(PRESCALE_VALUE);
-//			
-//			// stop
-//			Stop_Car();
-
-//			// 20% Duty Cycle: LEFT
-//			PWM_PB76_Duty(TWENTY_DUTY, EIGHTY_DUTY);
-//			
-//			// Backward left turn
-//			WHEEL_DIR = BACKWARD;
-//			PWM0_ENABLE_R &= ~RIGHT_WHEEL; // Disable right wheel
-//			PWM0_ENABLE_R |= LEFT_WHEEL; // Enable left wheel
-//			Timer1A_Delay(PRESCALE_VALUE);
-//				
-//			// stop
-//			Stop_Car();
-//			
-//			// 20% Duty Cycle: RIGHT
-//			PWM_PB76_Duty(EIGHTY_DUTY, TWENTY_DUTY);
-//			
-//			// Backward right turn
-//			WHEEL_DIR=BACKWARD;
-//			PWM0_ENABLE_R |= RIGHT_WHEEL; // Enable right wheel
-//			PWM0_ENABLE_R &= ~LEFT_WHEEL; // Disable left wheel
-//			Timer1A_Delay(PRESCALE_VALUE);
-
-//			// stop
-//			Stop_Car();
-
-//			// 50% Duty Cycle: LEFT
-//			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
-
-//			// Left pivot turn
-//			WHEEL_DIR=LEFTPIVOT;
-//			PWM0_ENABLE_R |= BOTH_WHEEL; // Enable both wheels
-//			Timer1A_Delay(PRESCALE_VALUE);
-
-//			Stop_Car();
-//			
-//			// 50% Duty Cycle: RIGHT
-//			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
-
-//			// right pivot turn
-//			WHEEL_DIR=RIGHTPIVOT;
-//			PWM0_ENABLE_R |= BOTH_WHEEL; // Enable both wheels
-//			Timer1A_Delay(PRESCALE_VALUE);
-
-//			Stop_Car();
-//			SW1_Pressed = 0;
-//			}
-//	}
-//	
-//	
-//}
-
-//void Stop_Car(void){
-//	// stop
-//		PWM0_ENABLE_R &= ~BOTH_WHEEL; // stop both wheels
-//		Timer1A_Delay(PRESCALE_VALUE);
-//}
-
-// void GPIOPortF_Handler(void){   // handles everything with leds and the switch
-//	// simple debouncing code
-//	for (uint32_t time=0;time<160000;time++) {}
-//	
-//	if (GPIO_PORTF_RIS_R & SW1_MASK) {		
-//		GPIO_PORTF_ICR_R |= SW1_MASK;  
-//		SW1_Pressed = 1; // acknowledge flag4: 00010000 for switch 1
-//	}		
-//	
-//}

@@ -22,23 +22,92 @@ Dialog DLL:      TCM.DLL V1.56.6.0
  
 <h2>Project:</h2>
 C:\Users\mavri\Documents\GitHub\CECS-347\Project_2\Part_3\HW_PWM_Car.uvprojx
-Project File Date:  10/13/2025
+Project File Date:  10/15/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V6.24', folder: 'C:\Users\mavri\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
 Rebuild target 'HW_PWM_Car'
-compiling main.c...
-compiling PWM.c...
 assembling startup.s...
-compiling Timer1A.c...
-compiling PLL.c...
-compiling ADC0SS3.c...
-compiling GPIO.c...
+compiling PWM.c...
+FollowMe.c(53): error: use of undeclared identifier 'TOO_CLOSE'
+   53 |         } while ((ADCvalue>TOO_CLOSE) || (ADCvalue<TOO_FAR));
+      |                            ^
+FollowMe.c(53): error: use of undeclared identifier 'TOO_FAR'
+   53 |         } while ((ADCvalue>TOO_CLOSE) || (ADCvalue<TOO_FAR));
+      |                                                    ^
+FollowMe.c(55): error: use of undeclared identifier 'TOO_CLOSE'
+   55 |   while ((ADCvalue<TOO_CLOSE) && (ADCvalue>TOO_FAR)) {                                                          
+      |                    ^
+FollowMe.c(55): error: use of undeclared identifier 'TOO_FAR'
+   55 |   while ((ADCvalue<TOO_CLOSE) && (ADCvalue>TOO_FAR)) {                                                          
+      |                                            ^
+FollowMe.c(58): error: use of undeclared identifier 'FOLLOW_DIST'
+   58 |                 if (ADCvalue>FOLLOW_DIST) { // negative logic: too close, move back
+      |                              ^
+FollowMe.c(61): error: use of undeclared identifier 'FOLLOW_DIST'
+   61 |                 else if (ADCvalue<FOLLOW_DIST){ // negative logic: too far, move forward
+      |                                   ^
+6 errors generated.
 compiling FollowMe.c...
-linking...
-Program Size: Code=2556 RO-data=16 RW-data=0 ZI-data=1128  
-FromELF: creating hex file...
-".\Hardware_PWM_Car.axf" - 0 Error(s), 0 Warning(s).
+main.c(11): warning: In file included from...
+.\SW_LED.h(31): error: use of undeclared identifier 'Modify_PF4'
+   31 |         GPIO_PORTF_CR_R |= Modify_PF4;                  // allow changes to PF4-0 :11111->0x1F     
+      |                            ^
+.\SW_LED.h(32): error: use of undeclared identifier 'Modify_PF4'
+   32 |   GPIO_PORTF_AMSEL_R &= ~Modify_PF4;        // disable analog function
+      |                          ^
+.\SW_LED.h(33): error: use of undeclared identifier 'PORTF_CLEAR_PCTL'
+   33 |   GPIO_PORTF_PCTL_R &= ~PORTF_CLEAR_PCTL;       // GPIO clear bit PCTL  
+      |                         ^
+.\SW_LED.h(34): error: use of undeclared identifier 'PORTF_IN'
+   34 |   GPIO_PORTF_DIR_R &= ~PORTF_IN;          // PF4,PF0 input   
+      |                        ^
+.\SW_LED.h(35): error: use of undeclared identifier 'PORTF_OUT'
+   35 |   GPIO_PORTF_DIR_R |= PORTF_OUT;                // PF3,PF2,PF1 output   
+      |                       ^
+.\SW_LED.h(36): error: use of undeclared identifier 'Modify_PF4'
+   36 |         GPIO_PORTF_AFSEL_R &= ~Modify_PF4;        // no alternate function
+      |                                ^
+.\SW_LED.h(37): error: use of undeclared identifier 'PORTF_PUR'
+   37 |   GPIO_PORTF_PUR_R |= PORTF_PUR;                // enable pullup resistors on PF4,PF0       
+      |                       ^
+.\SW_LED.h(38): error: use of undeclared identifier 'Modify_PF4'
+   38 |   GPIO_PORTF_DEN_R |= Modify_PF4;               // enable digital pins PF4-PF0
+      |                       ^
+.\SW_LED.h(40): error: use of undeclared identifier 'SW1_MASK'
+   40 |         GPIO_PORTF_IS_R &= ~SW1_MASK;                                                                                                           // PF0 is edge-sensitive
+      |                             ^
+.\SW_LED.h(41): error: use of undeclared identifier 'SW1_MASK'
+   41 |         GPIO_PORTF_IBE_R &= ~SW1_MASK;                                                                                                  // PF0 is not both edges
+      |                              ^
+.\SW_LED.h(42): error: use of undeclared identifier 'SW1_MASK'
+   42 |         GPIO_PORTF_IEV_R |= SW1_MASK;                                                                                                   // PF0 rising edge event 
+      |                             ^
+.\SW_LED.h(43): error: use of undeclared identifier 'SW1_MASK'
+   43 |         GPIO_PORTF_ICR_R |= SW1_MASK;                                                                                                   // Clear Flag0
+      |                             ^
+.\SW_LED.h(44): error: use of undeclared identifier 'SW1_MASK'
+   44 |         GPIO_PORTF_IM_R |= SW1_MASK;                                                                                                            // Arm interrupt on PF0
+      |                            ^
+.\SW_LED.h(46): error: use of undeclared identifier 'PORTF_IRQ'
+   46 |         NVIC_EN0_R = PORTF_IRQ;                                 // (h) enable Port F edge interrupt
+      |                      ^
+main.c(50): error: call to undeclared function 'ADC1_SS1_Init'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   50 |         ADC1_SS1_Init();       // Initialize ADC1 Sample sequencer 1 
+      |         ^
+main.c(52): error: call to undeclared function 'SW_LED_Init'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   52 |   SW_LED_Init();          // inititlize switches and LEDs in SW_LED module
+      |   ^
+main.c(52): note: did you mean 'LED_Init'?
+.\SW_LED.h(14): note: 'LED_Init' declared here
+   14 | void LED_Init(void){ volatile unsigned long delay;
+      |      ^
+16 errors generated.
+compiling main.c...
+compiling PLL.c...
+compiling Timer1A.c...
+compiling ADC0SS3.c...
+".\Hardware_PWM_Car.axf" - 22 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -61,7 +130,8 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE@6.1.1
-Build Time Elapsed:  00:00:01
+Target not created.
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

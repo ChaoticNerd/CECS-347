@@ -50,5 +50,4 @@
 // Outputs: None
 // Description: Initializes PB5432 for use with L298N motor driver direction
 void Car_Dir_Init(void);
-void LED_Init(void);
 /////////////////////////////////////////////////////////////////////////////
