@@ -12,9 +12,9 @@
 
 #include <stdint.h>
 
-#define ADC0_PSSI_SS3 0x0008    // start sample sequencer 3
-#define ADC0_ISC_SS3  0x0008    // acknowledge sample sequencer 3 interrupt
-#define ADC0_RIS_SS3  0x08
+#define ADC1_PSSI_SS1 0x0002    // start sample sequencer 3
+#define ADC1_ISC_SS1  0x0002    // acknowledge sample sequencer 3 interrupt
+#define ADC1_RIS_SS1  0x02
 
 // This initialization function sets up the ADC according to the
 // following parameters.  Any parameters not explicitly listed

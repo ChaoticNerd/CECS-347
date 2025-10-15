@@ -67,20 +67,20 @@ void ADC0_InitSWTriggerSeq3_Ch1(void){
   SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R4;   // 1) activate clock for Port E
 	while ((SYSCTL_RCGCGPIO_R&SYSCTL_RCGCGPIO_R4)!=SYSCTL_RCGCGPIO_R4){}
 
-	GPIO_PORTE_DIR_R &= ~0x04;      // 2) make PE2 input
-  GPIO_PORTE_AFSEL_R |= 0x04;     // 3) enable alternate function on PE2
-  GPIO_PORTE_DEN_R &= ~0x04;      // 4) disable digital I/O on PE2
-  GPIO_PORTE_AMSEL_R |= 0x04;     // 5) enable analog function on PE2
-  SYSCTL_RCGC0_R |= 0x00010000;   // 6) activate ADC0 
-	while ((SYSCTL_RCGC0_R&0x00010000)!=0x00010000){}
+	GPIO_PORTE_DIR_R &= ~0x07;      // 2) make PE2 input
+  GPIO_PORTE_AFSEL_R |= 0x07;     // 3) enable alternate function on PE0-2
+  GPIO_PORTE_DEN_R &= ~0x07;      // 4) disable digital I/O on PE0-2
+  GPIO_PORTE_AMSEL_R |= 0x07;     // 5) enable analog function on PE0-2
+  SYSCTL_RCGC0_R |= 0x001000000;   // 6) activate ADC0 
+	while ((SYSCTL_RCGC0_R&0x00100000)!=0x00100000){}
          
-  SYSCTL_RCGC0_R &= ~0x00000300;  // 7) configure for 125K 
-  ADC0_SSPRI_R = 0x0123;          // 8) Sequencer 3 is highest priority
-  ADC0_ACTSS_R &= ~0x0008;        // 9) disable sample sequencer 3
-  ADC0_EMUX_R &= ~0xF000;         // 10) seq3 is software trigger
-  ADC0_SSMUX3_R = (ADC0_SSMUX3_R&0xFFFFFFF0)+1; // 11) channel Ain1 (PE2)
-  ADC0_SSCTL3_R = 0x0006;         // 12) no TS0 D0, yes IE0 END0
-  ADC0_ACTSS_R |= 0x0008;         // 13) enable sample sequencer 3
+  SYSCTL_RCGC0_R &= ~0x00000C00;  // 7) configure for 125K 
+  ADC1_SSPRI_R = 0x0123;          // 8) Sequencer 3? is highest priority
+  ADC1_ACTSS_R &= ~0x0002;        // 9) disable sample sequencer 1
+  ADC1_EMUX_R &= ~0xF000;         // 10) seq3 is software trigger
+  ADC1_SSMUX1_R = (ADC1_SSMUX1_R&0xFFFFFFF0)+7; // 11) channel Ain1-3 (PE0-2)
+  ADC1_SSCTL1_R = 0x0666;         // 12) no TS0 D0, yes IE0 END0-2, IF U=ERROR ENABLE ALL 4
+  ADC1_ACTSS_R |= 0x0002;         // 13) enable sample sequencer 1
 }
 
 //------------ADC0_InSeq3------------
@@ -89,10 +89,10 @@ void ADC0_InitSWTriggerSeq3_Ch1(void){
 // Output: 12-bit result of ADC conversion
 uint16_t ADC0_InSeq3(void){  
 	uint16_t result;
-  ADC0_PSSI_R = ADC0_PSSI_SS3;            // 1) initiate SS3:1000
-  while((ADC0_RIS_R&ADC0_RIS_SS3)==0){};   // 2) wait for conversion done
-  result = ADC0_SSFIFO3_R&0xFFF;   // 3) read result
-  ADC0_ISC_R = ADC0_ISC_SS3;             // 4) acknowledge completion
+  ADC1_PSSI_R = ADC1_PSSI_SS1;            // 1) initiate SS3:1000
+  while((ADC0_RIS_R&ADC1_RIS_SS1)==0){};   // 2) wait for conversion done
+  result = ADC1_SSFIFO1_R&0xFFF;   // 3) read result
+  ADC1_ISC_R = ADC1_ISC_SS1;             // 4) acknowledge completion
   return result;
 }
 
