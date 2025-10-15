@@ -70,3 +70,18 @@ PB3 - L SLP
 PB2 - L DIR
 
 */
+
+void move_forward(void){
+			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
+			WHEEL_DIR = FORWARD;
+			PWM0_ENABLE_R |= BOTH_WHEEL; // enable both wheels
+}
+
+void stop_the_car(void){
+		PWM0_ENABLE_R &= ~BOTH_WHEEL; // stop both wheels
+}
+
+void move_backward(void){
+			WHEEL_DIR = BACKWARD;
+			PWM0_ENABLE_R |= BOTH_WHEEL; // enable both wheels
+}

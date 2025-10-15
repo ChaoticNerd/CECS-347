@@ -10,6 +10,9 @@
 //							cycles.
 /////////////////////////////////////////////////////////////////////////////
 
+//////////////////////2. Declarations Section////////////////////////////////
+									////////// Constants //////////
+#define WHEEL_DIR (*((volatile unsigned long *)0x40005330)) // PB7632 are the four direction pins for L298
 
 // Constant definitions based on the following hardware interface:
 // System clock is 16MHz.
@@ -20,7 +23,15 @@
 
 // PB5432 are used for direction control on L298.
 // Motor 1 is connected to the left wheel, Motor 2 is connected to the right wheel.
+#define FORWARD 0x88 			// 10XX10	
+#define BACKWARD 0xCC 		// 11XX11
+#define LEFTPIVOT 0xC8 		// 11XX10
+#define RIGHTPIVOT 0x8C 	// 10XX11
 
+//Wheels 
+#define BOTH_WHEEL 0x0000000C;
+#define RIGHT_WHEEL 0x00000008;
+#define LEFT_WHEEL 0x00000004;
 //////////////////////1. Declarations Section////////////////////////////////
 ////////// Function Prototypes //////////
 // Dependency: None

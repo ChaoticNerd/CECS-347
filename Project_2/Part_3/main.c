@@ -9,6 +9,7 @@
 #include "motors.h"			 // GPIO.h == Motors.h
 #include "SW_LED.h"		 // GPIO.h == SW_LED.h
 #include "PLL.h"
+#include "PWM.h"
 
 enum robot_modes {INACTIVE, OBJECT_FOLLOWER, WALL_FOLLOWER};
 
@@ -53,8 +54,33 @@ void System_Init(void){
   EnableInterrupts();	
 }
 
-void object_follower(void)
-{
+void object_follower(void){
+	uint8_t i;
+  volatile uint16_t ADCvalue;
+	
+	// Calibrate the sensor
+	for (i=0;i<10;i++) {
+    ADCvalue = ReadADCMedianFilter();  // read one value
+	} 
+	
+  // wait until an obstacle is in the right distant range.
+ 	do {
+			ADCvalue = ReadADCMedianFilter();  // read one value
+	} while ((ADCvalue>TOO_CLOSE) || (ADCvalue<TOO_FAR));
+		
+  while ((ADCvalue<TOO_CLOSE) && (ADCvalue>TOO_FAR)) {								
+		ADCvalue = ReadADCMedianFilter();
+		
+		if (ADCvalue>FOLLOW_DIST) { // negative logic: too close, move back
+			move_backward();
+		}
+		else if (ADCvalue<FOLLOW_DIST){ // negative logic: too far, move forward
+			move_forward();
+		}
+		else { // right distance, stop
+			stop_the_car();
+		}
+  }	
 }
 
 void wall_follower(void){

@@ -134,7 +134,7 @@
             <UseExternalTool>0</UseExternalTool>
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
-            <Capability>1</Capability>
+            <Capability>0</Capability>
             <DriverSelection>4097</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
@@ -401,11 +401,6 @@
               <FilePath>.\Timer1A.c</FilePath>
             </File>
             <File>
-              <FileName>Timer1A.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Timer1A.h</FilePath>
-            </File>
-            <File>
               <FileName>FollowMe.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\FollowMe.c</FilePath>
@@ -439,6 +434,16 @@
               <FileName>ADC1SS1.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\ADC1SS1.h</FilePath>
+            </File>
+            <File>
+              <FileName>Motors.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Motors.c</FilePath>
+            </File>
+            <File>
+              <FileName>SW_LED.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SW_LED.c</FilePath>
             </File>
           </Files>
         </Group>

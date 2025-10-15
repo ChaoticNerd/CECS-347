@@ -13,44 +13,7 @@
 
 #include "tm4c123gh6pm.h"
 #include <stdint.h>
-#include "ADC0SS3.h"
-
-#define TOO_FAR 		(1613)  // replace the zero with the ADC output value for maximum distance
-#define FOLLOW_DIST (1979)  // replace the zero with the ADC output value for object following distance
-#define TOO_CLOSE 	(3600)  // replace the zero with the ADC output value for minimum distance
-
-// This initialization function sets up the ADC according to the
-// following parameters.  Any parameters not explicitly listed
-// below are not modified:
-// Max sample rate: <=125,000 samples/second
-// Sequencer 0 priority: 1st (highest)
-// Sequencer 1 priority: 2nd
-// Sequencer 2 priority: 3rd
-// Sequencer 3 priority: 4th (lowest)
-// SS3 triggering event: software trigger
-// SS3 1st sample source: Ain7 (PD0)
-// SS3 interrupts: flag set on completion but no interrupt requested
-// When the PLL is operating, the ADC clock is derived from the PLL(400) ÷ 25 by default.
-void ADC0_InitSWTriggerSeq3_Ch7(void){ 
-  SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R3;   // 1) activate clock for Port D
-	while ((SYSCTL_RCGCGPIO_R&SYSCTL_RCGCGPIO_R3)!=SYSCTL_RCGCGPIO_R3){}
-
-	GPIO_PORTD_DIR_R &= ~0x01;      // 2) make PD0 input
-  GPIO_PORTD_AFSEL_R |= 0x01;     // 3) enable alternate function on PD0
-  GPIO_PORTD_DEN_R &= ~0x01;      // 4) disable digital I/O on PD0
-  GPIO_PORTD_AMSEL_R |= 0x01;     // 5) enable analog function on PD0
-  
-	SYSCTL_RCGC0_R |= 0x00010000;   // 6) activate ADC0 
-	while ((SYSCTL_RCGC0_R&0x00010000)!=0x00010000){}
-         
-  SYSCTL_RCGC0_R &= ~0x00000300;  // 7) configure for 125K 
-  ADC0_SSPRI_R = 0x0123;          // 8) Sequencer 3 is highest priority
-  ADC0_ACTSS_R &= ~0x0008;        // 9) disable sample sequencer 3
-  ADC0_EMUX_R &= ~0xF000;         // 10) seq3 is software trigger
-  ADC0_SSMUX3_R = (ADC0_SSMUX3_R&0xFFFFFFF0)+7; // 11) channel Ain1 (PE2)
-  ADC0_SSCTL3_R = 0x0006;         // 12) no TS0 D0, yes IE0 END0
-  ADC0_ACTSS_R |= 0x0008;         // 13) enable sample sequencer 3
-}
+#include "ADC1SS1.h"
 
 // This initialization function sets up the ADC according to the
 // following parameters.  Any parameters not explicitly listed
@@ -63,7 +26,7 @@ void ADC0_InitSWTriggerSeq3_Ch7(void){
 // SS3 triggering event: software trigger
 // SS3 1st sample source: Ain1 (PE2)
 // SS3 interrupts: flag set on completion but no interrupt requested
-void ADC0_InitSWTriggerSeq3_Ch1(void){ 
+void ADC1_SS1_Init(void){ 
   SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R4;   // 1) activate clock for Port E
 	while ((SYSCTL_RCGCGPIO_R&SYSCTL_RCGCGPIO_R4)!=SYSCTL_RCGCGPIO_R4){}
 

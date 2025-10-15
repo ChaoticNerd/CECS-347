@@ -16,18 +16,9 @@
 #define ADC1_ISC_SS1  0x0002    // acknowledge sample sequencer 3 interrupt
 #define ADC1_RIS_SS1  0x02
 
-// This initialization function sets up the ADC according to the
-// following parameters.  Any parameters not explicitly listed
-// below are not modified:
-// Max sample rate: <=125,000 samples/second
-// Sequencer 0 priority: 1st (highest)
-// Sequencer 1 priority: 2nd
-// Sequencer 2 priority: 3rd
-// Sequencer 3 priority: 4th (lowest)
-// SS3 triggering event: software trigger
-// SS3 1st sample source: Ain7 (PD0)
-// SS3 interrupts: flag set on completion but no interrupt requested
-void ADC0_InitSWTriggerSeq3_Ch7(void);
+#define TOO_FAR 		(1613)  // replace the zero with the ADC output value for maximum distance
+#define FOLLOW_DIST (1979)  // replace the zero with the ADC output value for object following distance
+#define TOO_CLOSE 	(3600)  // replace the zero with the ADC output value for minimum distance
 
 // This initialization function sets up the ADC according to the
 // following parameters.  Any parameters not explicitly listed
@@ -40,7 +31,7 @@ void ADC0_InitSWTriggerSeq3_Ch7(void);
 // SS3 triggering event: software trigger
 // SS3 1st sample source: Ain1 (PE2)
 // SS3 interrupts: flag set on completion but no interrupt requested
-void ADC0_InitSWTriggerSeq3_Ch1(void); 
+void ADC1_SS1_Init(void); 
 
 //------------ADC0_InSeq3------------
 // Busy-wait Analog to digital conversion
