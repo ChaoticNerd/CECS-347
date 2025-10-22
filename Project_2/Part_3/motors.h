@@ -13,6 +13,3 @@
 void Motors_Init(void);
 
 void follow_me(void);
-void stop_the_car(void);
-void move_backward(void);
-void move_forward(void);

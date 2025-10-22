@@ -23,10 +23,10 @@
 
 // PB5432 are used for direction control on L298.
 // Motor 1 is connected to the left wheel, Motor 2 is connected to the right wheel.
-#define FORWARD 0x88 			// 10XX10	
-#define BACKWARD 0xCC 		// 11XX11
-#define LEFTPIVOT 0xC8 		// 11XX10
-#define RIGHTPIVOT 0x8C 	// 10XX11
+#define BACKWARD 0x88 			// 10XX10	
+#define FORWARD 0xCC 		// 11XX11
+#define RIGHTPIVOT 0xC8 		// 11XX10
+#define LEFTPIVOT 0x8C 	// 10XX11
 
 //Wheels 
 #define BOTH_WHEEL 0x0000000C;
@@ -43,6 +43,12 @@
 //	Initializes the PWM module 0 signals tied to PB76 to be used with the 
 //		L298N motor driver allowing for a variable speed of robot car.
 void PWM_PB76_Init(void);
+
+void move_right_pivot(void);
+void move_left_pivot(void);
+void stop_the_car(void);
+void move_backward(void);
+void move_forward(void);
 
 // Dependency: PWM_PB76_Init()
 // Inputs: 

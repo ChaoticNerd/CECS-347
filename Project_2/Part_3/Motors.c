@@ -1,4 +1,4 @@
-#include "motors.h"
+#include "Motors.h"
 
 void Motors_Init(void){
 	if ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOB)==0) {

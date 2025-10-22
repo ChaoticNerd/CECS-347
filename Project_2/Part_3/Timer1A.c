@@ -25,7 +25,7 @@ void Timer1A_Init(void){
 	while((SYSCTL_RCGCTIMER_R&TIMER1_SETUP)!=TIMER1_SETUP){}; // wait for clock to start
 	TIMER1_CTL_R = TIMER1_CLEAR; 		// disable TIMER1A
 	TIMER1_CFG_R = TIMER1_16BIT;    // 2) configure for 16-bit mode
-  TIMER1_TAMR_R = TIMER1_PCD;   			// 3) configure for periodic down-count mode
+    TIMER1_TAMR_R = TIMER1_PCD;   			// 3) configure for periodic down-count mode
 	TIMER1_TAPR_R = TIMER1_PRESCALE;         	// 5) bus clock prescale
 
 }

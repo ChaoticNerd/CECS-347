@@ -82,6 +82,20 @@ void stop_the_car(void){
 }
 
 void move_backward(void){
+			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
 			WHEEL_DIR = BACKWARD;
 			PWM0_ENABLE_R |= BOTH_WHEEL; // enable both wheels
+}
+
+void move_left_pivot(void){
+			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
+			WHEEL_DIR=LEFTPIVOT;
+			PWM0_ENABLE_R |= BOTH_WHEEL; // Enable both wheels
+
+}
+
+void move_right_pivot(void){
+			PWM_PB76_Duty(FIFTY_DUTY, FIFTY_DUTY);
+			WHEEL_DIR=RIGHTPIVOT;
+			PWM0_ENABLE_R |= BOTH_WHEEL; // Enable both wheels
 }

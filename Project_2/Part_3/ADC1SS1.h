@@ -39,6 +39,8 @@ void ADC1_SS1_Init(void);
 // Output: 12-bit result of ADC conversion
 uint16_t ADC0_InSeq3(void);
 
-uint16_t ReadADCMedianFilter(void);
+void ADC1_InSeq1(unsigned long *ain3, unsigned long *ain2, unsigned long *ain1);
 
-uint16_t median(uint16_t u1, uint16_t u2, uint16_t u3);
+void ReadADCMedianFilter(unsigned long *ain3, unsigned long *ain2, unsigned long *ain1);
+
+uint16_t median(unsigned long u1, unsigned long u2, unsigned long u3);
