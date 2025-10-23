@@ -34,7 +34,6 @@ int main(void){
 		
 		switch (mode) {
 			case OBJECT_FOLLOWER:
-				//LED = 0x0E; G
 				object_follower();
 			  break;
 			case WALL_FOLLOWER:
@@ -64,67 +63,84 @@ void object_follower(void){
 	uint8_t i;
 	unsigned long ahead, frwdright, frwdleft, count, delay;
 	delay = 2500;
-	LED = 0x0E; // ENTERS INTO THE GOBJECT FOLLOWER PROPERLY
+	//LED = 0x0E; // ENTERS INTO THE GOBJECT FOLLOWER PROPERLY
+
+	//for (i=0;i<10;i++) {
 	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
 	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
 	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	
-	while((ahead > TOO_FAR || frwdright > TOO_FAR || frwdleft > TOO_FAR) && 
-		(ahead < TOO_CLOSE || frwdright < TOO_CLOSE || frwdleft < TOO_CLOSE)){//while in range 
-		if((ahead > FOLLOW_DIST)&&((ahead > frwdleft)&&(ahead > frwdright))){ // AHEAD CLOSE
-			LED = 0x06;
-			move_backward();
-			
-		}else if((ahead < FOLLOW_DIST)&&((ahead > frwdleft)&&(ahead > frwdright))){// AHEAD FAR
-			LED = 0x0C; 
-			move_forward();
-			
-		}else if((frwdleft > ahead)&&(frwdleft > frwdright)&& ((frwdleft > TOO_FAR)&&(frwdleft < TOO_CLOSE))){ // TO LEFT(frwdleft < FOLLOW_DIST)
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+
+	//}
+	while(1){
+			if (ahead > TOO_FAR || frwdleft > TOO_FAR || frwdright > TOO_FAR) // if any sensor within 20 cm 
+	{
+		stop_the_car();
+		
+		if ((ahead > TOO_CLOSE && frwdleft > TOO_CLOSE && frwdright > TOO_CLOSE)) // reverse if all sensor is close
+		{
 			LED = 0x02;
-			move_left_pivot();
-			
-		}else if((frwdright > ahead)&&(frwdright > frwdleft)&& ((frwdright > TOO_FAR)&&(frwdright < TOO_CLOSE))){ // TO RIGHT(frwdright < FOLLOW_DIST)&&
-			LED = 0x04;
-			move_right_pivot();
-			
-////		}else if((ahead > FOLLOW_DIST)&&(ahead < TOO_FAR)){ //NA
-////		
-////		}else if((ahead < FOLLOW_DIST)&&(ahead > TOO_CLOSE)){ // NA
-////		
-////		}else if(){
-////		
-////		}else if(){
-////		
-////		}else if(){
-		} 
-//		while((ahead > TOO_FAR || frwdright > TOO_FAR || frwdleft > TOO_FAR) && 
-//		(ahead < TOO_CLOSE || frwdright < TOO_CLOSE || frwdleft < TOO_CLOSE)){//while in range 
-//		if((frwdleft > ahead)&&(frwdleft > frwdright)&& ((frwdleft > TOO_FAR)&&(frwdleft < TOO_CLOSE))){ // AHEAD CLOSE
-//			LED = 0x06;
-//			move_left_pivot();
-//			
-//		}else if((frwdright > ahead)&&(frwdright > frwdleft)&& ((frwdright > TOO_FAR)&&(frwdright < TOO_CLOSE))){// AHEAD FAR
-//			LED = 0x0C; 
-//			move_right_pivot();
-//			
-//			}else{
-//			LED = 0x08;
-//			}
-		
-			
-		if (((ahead>TOO_CLOSE) || (ahead<TOO_FAR))&&((frwdleft>TOO_CLOSE) || (frwdleft<TOO_FAR))&&((frwdright>TOO_CLOSE) || (frwdright<TOO_FAR))){
-			stop_the_car(); 
-			LED = 0x00;
-			mode = INACTIVE;
-			break;
+			move_backward();
 		}
-		Timer1A_Delay(delay);
-		
-			
-			
-		
-		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+		else if ((frwdleft > TOO_CLOSE && ahead > TOO_CLOSE) || (frwdleft > TOO_CLOSE)) // if left sensor is close to obstacle, turn left
+		{
+			LED = 0x08;
+			move_left_turn();
+		}
+		else if ((frwdright > TOO_CLOSE && ahead > TOO_CLOSE) || (frwdright > TOO_CLOSE)) // if right sensor is close to obstacle, turn right
+		{
+			LED = 0x04;
+			move_right_turn();
+		}
+		else if (ahead > TOO_FAR)
+		{
+			/*
+			if (frwdleft > IR20CM)
+			{
+			LED = Green;
+			PWM_PB76_Duty(9000, 9000);
+			WHEEL_DIR = RIGHTPIVOT;
+			PWM0_ENABLE_R &= ~0x00000002; // Disable right wheel
+			PWM0_ENABLE_R |= 0x00000001; // Enable left wheel
+			}
+			else if (frwdright > IR20CM)
+			{
+			LED = Blue;
+			PWM_PB76_Duty(9000, 9000);
+			WHEEL_DIR = LEFTPIVOT;
+			PWM0_ENABLE_R |= 0x00000002; // Enable right wheel
+			PWM0_ENABLE_R &= ~0x00000001; // Disable left wheel				
+			}
+			*/
+			/*
+			else 
+			{
+			LED = Red;
+			PWM_PB76_Duty(8000, 8000);
+			WHEEL_DIR = BACKWARD;
+			PWM0_ENABLE_R |= 0x00000003;
+			}
+			*/
+		}
 	}
+	else if (ahead < TOO_FAR && frwdleft < TOO_FAR && frwdright < TOO_FAR) // stop when sensor greater than 80 cm
+	{
+		LED = 0x06;
+		stop_the_car();
+		//mode = INACTIVE;
+	}
+	else // if any sensor is not close go straight
+	{
+		LED = 0x00;
+		move_forward();
+	}
+	}
+}
 	
 //	
 //	
@@ -167,7 +183,7 @@ void object_follower(void){
 //		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
 //  }
   
-}
+
 
 // PROJECT 2, PART 4
 void wall_follower(void){

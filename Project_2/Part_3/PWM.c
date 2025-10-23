@@ -99,3 +99,23 @@ void move_right_pivot(void){
 			WHEEL_DIR=RIGHTPIVOT;
 			PWM0_ENABLE_R |= BOTH_WHEEL; // Enable both wheels
 }
+
+void move_left_turn(void){
+PWM_PB76_Duty(EIGHTY_DUTY, TWENTY_DUTY);
+			
+			// Forward left turn
+			WHEEL_DIR=FORWARD;
+			PWM0_ENABLE_R |= RIGHT_WHEEL; // Enable right wheel
+			PWM0_ENABLE_R &= ~LEFT_WHEEL; // Disable left wheel
+			
+}
+			
+void move_right_turn(void){
+			// 20% Duty Cycle: RIGHT
+			PWM_PB76_Duty(TWENTY_DUTY,EIGHTY_DUTY);
+			
+			// Forward right turn
+			WHEEL_DIR=FORWARD;
+			PWM0_ENABLE_R &= ~RIGHT_WHEEL; // Disable right wheel
+			PWM0_ENABLE_R |= LEFT_WHEEL; // Enable left wheel
+			}

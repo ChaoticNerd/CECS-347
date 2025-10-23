@@ -50,6 +50,8 @@ void move_left_pivot(void);
 void stop_the_car(void);
 void move_backward(void);
 void move_forward(void);
+void move_left_turn(void);
+void move_right_turn(void);
 
 // Dependency: PWM_PB76_Init()
 // Inputs: 
