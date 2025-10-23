@@ -16,9 +16,15 @@
 #define ADC1_ISC_SS1  0x0002    // acknowledge sample sequencer 3 interrupt
 #define ADC1_RIS_SS1  0x02
 
-#define TOO_FAR 		(1613)  // replace the zero with the ADC output value for maximum distance
+//347 Room values
+//#define TOO_FAR 		(1463)  // replace the zero with the ADC output value for maximum distance
+//#define FOLLOW_DIST (1979)  // replace the zero with the ADC output value for object following distance
+//#define TOO_CLOSE 	(2663)  // replace the zero with the ADC output value for minimum distance
+//Library values
+#define TOO_FAR 		(1463)  // replace the zero with the ADC output value for maximum distance
 #define FOLLOW_DIST (1979)  // replace the zero with the ADC output value for object following distance
-#define TOO_CLOSE 	(3600)  // replace the zero with the ADC output value for minimum distance
+#define TOO_CLOSE 	(2663)  // replace the zero with the ADC output value for minimum distance
+
 
 // This initialization function sets up the ADC according to the
 // following parameters.  Any parameters not explicitly listed

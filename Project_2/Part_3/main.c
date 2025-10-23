@@ -62,52 +62,110 @@ void System_Init(void){
 // PROJECT 2, PART 3
 void object_follower(void){
 	uint8_t i;
-	unsigned long ahead, frwdright, frwdleft; 
+	unsigned long ahead, frwdright, frwdleft, count, delay;
+	delay = 2500;
 	LED = 0x0E; // ENTERS INTO THE GOBJECT FOLLOWER PROPERLY
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
 	
-	// Calibrate the sensor
-	for (i=0;i<10;i++) {
-				//LED = 0x0C; // does enter this 
-        ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-				//LED = 0x02; // does not enter that in sim
-	} //LED = 0x02;
-	
-  // wait until an Gobstacle is in the right distant range.G
- 	do {
-			//LED = 0x02;
-			ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);  // read one value
-			//ADC1_InSeq1(&ahead, &frwdleft, &frwdright);
-			//LED = 0x04;
-
-	} while ((ahead<TOO_CLOSE) || (ahead>TOO_FAR));
-	LED = 0x08;
-	// CHANGE WHILE CONDITIOINS, and IF STATEMENTS CONDITIONS oh Guck... 
-		
-  while (ahead < TOO_FAR || frwdright < TOO_FAR || frwdleft < TOO_FAR && 
-		ahead > TOO_CLOSE || frwdright > TOO_CLOSE || frwdleft > TOO_CLOSE) {				//IF Left, or Right, or Forward in read is within rage too close and too far				
-			//LED = 0x02;
-		
-			LED = 0x04;
-
-		
-		//if (ahead > FOLLOW_DIST && (ahead > frwdright || ahead > frwdleft)) { // IF forward > (Fixed distance), && Forward > Left Or Right 
+	while((ahead > TOO_FAR || frwdright > TOO_FAR || frwdleft > TOO_FAR) && 
+		(ahead < TOO_CLOSE || frwdright < TOO_CLOSE || frwdleft < TOO_CLOSE)){//while in range 
+		if((ahead > FOLLOW_DIST)&&((ahead > frwdleft)&&(ahead > frwdright))){ // AHEAD CLOSE
+			LED = 0x06;
 			move_backward();
+			
+		}else if((ahead < FOLLOW_DIST)&&((ahead > frwdleft)&&(ahead > frwdright))){// AHEAD FAR
+			LED = 0x0C; 
+			move_forward();
+			
+		}else if((frwdleft > ahead)&&(frwdleft > frwdright)&& ((frwdleft > TOO_FAR)&&(frwdleft < TOO_CLOSE))){ // TO LEFT(frwdleft < FOLLOW_DIST)
 			LED = 0x02;
-		//}else if (ahead < FOLLOW_DIST && (ahead > frwdright || ahead > frwdleft)){ // IF forward < (Fixed distance), && Forward > Left Or Right 
-			//move_forward();
-			//LED = 0x08;
-		//}else if(frwdright > ahead || frwdright > frwdleft){ // IF RightG > Forward OR LEFT then pivot right UNTIL FORWARD  > than RIGHT
-			//move_right_pivot();
-			//LED = 0x06;
-		//}else if(frwdleft > ahead || frwdleft > frwdright){ //IF LEFTG > Forawrd or RIGHT then Pivot left until FORWARD > THan LEFT
-			//move_left_pivot();
-			//LED = 0x0C;
-		//}else { // right distance, stop
-			//stop_the_car(); 
-			//LED = 0x00;
+			move_left_pivot();
+			
+		}else if((frwdright > ahead)&&(frwdright > frwdleft)&& ((frwdright > TOO_FAR)&&(frwdright < TOO_CLOSE))){ // TO RIGHT(frwdright < FOLLOW_DIST)&&
+			LED = 0x04;
+			move_right_pivot();
+			
+////		}else if((ahead > FOLLOW_DIST)&&(ahead < TOO_FAR)){ //NA
+////		
+////		}else if((ahead < FOLLOW_DIST)&&(ahead > TOO_CLOSE)){ // NA
+////		
+////		}else if(){
+////		
+////		}else if(){
+////		
+////		}else if(){
+		} 
+//		while((ahead > TOO_FAR || frwdright > TOO_FAR || frwdleft > TOO_FAR) && 
+//		(ahead < TOO_CLOSE || frwdright < TOO_CLOSE || frwdleft < TOO_CLOSE)){//while in range 
+//		if((frwdleft > ahead)&&(frwdleft > frwdright)&& ((frwdleft > TOO_FAR)&&(frwdleft < TOO_CLOSE))){ // AHEAD CLOSE
+//			LED = 0x06;
+//			move_left_pivot();
+//			
+//		}else if((frwdright > ahead)&&(frwdright > frwdleft)&& ((frwdright > TOO_FAR)&&(frwdright < TOO_CLOSE))){// AHEAD FAR
+//			LED = 0x0C; 
+//			move_right_pivot();
+//			
+//			}else{
+//			LED = 0x08;
+//			}
+		
+			
+		if (((ahead>TOO_CLOSE) || (ahead<TOO_FAR))&&((frwdleft>TOO_CLOSE) || (frwdleft<TOO_FAR))&&((frwdright>TOO_CLOSE) || (frwdright<TOO_FAR))){
+			stop_the_car(); 
+			LED = 0x00;
+			mode = INACTIVE;
+			break;
 		}
+		Timer1A_Delay(delay);
+		
+			
+			
+		
 		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-  
+	}
+	
+//	
+//	
+//	// Calibrate the sensor
+//	for (i=0;i<10;i++) {
+//		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+//	}
+//	
+//  // wait until an Gobstacle is in the right distant range.G
+// 	do {
+//		//LED = 0x02;
+//		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);  // read one value
+//		//ADC1_InSeq1(&ahead, &frwdleft, &frwdright);
+//		//LED = 0x04;
+
+//	} while ((ahead<TOO_CLOSE) || (ahead>TOO_FAR));
+//	LED = 0x08;
+//	// CHANGE WHILE CONDITIOINS, and IF STATEMENTS CONDITIONS oh Guck... 
+//		
+//  while (ahead < TOO_FAR || frwdright < TOO_FAR || frwdleft < TOO_FAR && 
+//		ahead > TOO_CLOSE || frwdright > TOO_CLOSE || frwdleft > TOO_CLOSE) {				//IF Left, or Right, or Forward in read is within rage too close and too far				
+
+//		
+//		if (ahead > FOLLOW_DIST && (ahead > frwdright || ahead > frwdleft)) { // IF forward > (Fixed distance), && Forward > Left Or Right 
+//			move_backward();
+//			LED = 0x02;
+//		}else if (ahead < FOLLOW_DIST && (ahead > frwdright || ahead > frwdleft)){ // IF forward < (Fixed distance), && Forward > Left Or Right 
+//			move_forward();
+//			LED = 0x08;
+//		}else if(frwdright > ahead || frwdright > frwdleft){ // IF RightG > Forward OR LEFT then pivot right UNTIL FORWARD  > than RIGHT
+//			move_right_pivot();
+//			LED = 0x06;
+//		}else if(frwdleft > ahead || frwdleft > frwdright){ //IF LEFTG > Forawrd or RIGHT then Pivot left until FORWARD > THan LEFT
+//			move_left_pivot();
+//			LED = 0x0C;
+//		}else { // right distance, stop
+//			stop_the_car(); 
+//			//LED = 0x00;
+//		}
+//		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+//  }
   
 }
 

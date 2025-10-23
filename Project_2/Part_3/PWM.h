@@ -19,6 +19,7 @@
 #define TOTAL_PERIOD 16000 //  16MHz/1000=16000
 #define FIFTY_DUTY   16000 * 0.5
 #define TWENTY_DUTY  16000 * 0.2
+#define THIRTY_DUTY  16000 * 0.3
 #define EIGHTY_DUTY  16000 * 0.8
 
 // PB5432 are used for direction control on L298.

@@ -20,7 +20,7 @@
 //          period in units (1/clockfreq)
 // Outputs: none
 void Timer1A_Init(void);
-
+void Timer1A_Delay(unsigned long delay);
 #define TIMER1_SETUP	0x02
 #define TIMER1_CLEAR	0x00
 #define TIMER1_16BIT	0x4
