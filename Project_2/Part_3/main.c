@@ -82,57 +82,49 @@ void object_follower(void){
 	{
 		stop_the_car();
 		
-		if ((ahead > TOO_CLOSE && frwdleft > TOO_CLOSE && frwdright > TOO_CLOSE)) // reverse if all sensor is close
+//		if ((ahead > TOO_CLOSE && frwdleft > TOO_CLOSE && frwdright > TOO_CLOSE)) // reverse if all sensor is close
+//		{
+//			LED = 0x02;
+//			move_backward();
+//		}
+//		else if ((frwdleft > TOO_CLOSE && ahead > TOO_CLOSE) || (frwdleft > TOO_CLOSE)) // if left sensor is close to obstacle, turn left
+//		{
+//			LED = 0x08;
+//			move_left_turn();
+//		}
+//		else if ((frwdright > TOO_CLOSE && ahead > TOO_CLOSE) || (frwdright > TOO_CLOSE)) // if right sensor is close to obstacle, turn right
+//		{
+//			LED = 0x04;
+//			move_right_turn();
+//		}
+		else if (ahead > TOO_FAR) // within range
 		{
+			
+			if (frwdleft > TOO_CLOSE) // within range
+			{
 			LED = 0x02;
-			move_backward();
-		}
-		else if ((frwdleft > TOO_CLOSE && ahead > TOO_CLOSE) || (frwdleft > TOO_CLOSE)) // if left sensor is close to obstacle, turn left
-		{
-			LED = 0x08;
-			move_left_turn();
-		}
-		else if ((frwdright > TOO_CLOSE && ahead > TOO_CLOSE) || (frwdright > TOO_CLOSE)) // if right sensor is close to obstacle, turn right
-		{
-			LED = 0x04;
 			move_right_turn();
-		}
-		else if (ahead > TOO_FAR)
-		{
-			/*
-			if (frwdleft > IR20CM)
-			{
-			LED = Green;
-			PWM_PB76_Duty(9000, 9000);
-			WHEEL_DIR = RIGHTPIVOT;
-			PWM0_ENABLE_R &= ~0x00000002; // Disable right wheel
-			PWM0_ENABLE_R |= 0x00000001; // Enable left wheel
 			}
-			else if (frwdright > IR20CM)
+			else if (frwdright > TOO_CLOSE)
 			{
-			LED = Blue;
-			PWM_PB76_Duty(9000, 9000);
-			WHEEL_DIR = LEFTPIVOT;
-			PWM0_ENABLE_R |= 0x00000002; // Enable right wheel
-			PWM0_ENABLE_R &= ~0x00000001; // Disable left wheel				
+			LED = 0x08;
+			move_left_turn();		
 			}
-			*/
-			/*
+			
+			
 			else 
 			{
-			LED = Red;
-			PWM_PB76_Duty(8000, 8000);
-			WHEEL_DIR = BACKWARD;
-			PWM0_ENABLE_R |= 0x00000003;
+			LED = 0x02;
+			move_backward();
 			}
-			*/
+			
 		}
 	}
 	else if (ahead < TOO_FAR && frwdleft < TOO_FAR && frwdright < TOO_FAR) // stop when sensor greater than 80 cm
 	{
 		LED = 0x06;
 		stop_the_car();
-		//mode = INACTIVE;
+		mode = INACTIVE;
 	}
 	else // if any sensor is not close go straight
 	{
