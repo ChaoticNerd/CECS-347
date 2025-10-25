@@ -13,6 +13,9 @@
 #include "PWM.h"
 #include "Timer1A.h"
 
+#define LED_BLUE 	0x04
+#define LED_RED 	0x02
+#define LED_GREEN 0x08
 enum robot_modes {INACTIVE, OBJECT_FOLLOWER, WALL_FOLLOWER};
 
 // Function prototypes
@@ -26,11 +29,11 @@ void System_Init(void);
 void object_follower(void);
 void wall_follower(void);
 
-enum robot_modes mode = OBJECT_FOLLOWER;
+enum robot_modes mode = INACTIVE;
 
 int main(void){	
 	System_Init();
-	//LED = 0x0E;
+	LED = LED_RED;
   while(1){
 		
 		switch (mode) {
@@ -61,134 +64,95 @@ void System_Init(void){
 
 // PROJECT 2, PART 3
 void object_follower(void){
-	uint8_t i;
 	unsigned long ahead, frwdright, frwdleft, count, delay;
-	delay = 10000;
-	//LED = 0x0E; // ENTERS INTO THE GOBJECT FOLLOWER PROPERLY
+	LED = LED_BLUE;
 
-	//for (i=0;i<10;i++) {
-	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	
-	//while(1){
-	if(( frwdleft >  ahead ) && ( frwdleft >  frwdright )){
- 		switch(frwdleft){
-//			case TOO_CLOSE+1 ... MIN_VAL: // if left sensor between 10 cm to 20cm pivot left to face object
-//				stop_the_car();
-//				LED = 0x02;
-//				break;
-//			
-			case TOO_FAR ... TOO_CLOSE: // if left sensor between 10 cm to 20cm pivot left to face object
-				move_left_turn();
-				LED = 0x0E;
-				break;
-//			
-//			
-//			case MAX_VAL ... TOO_FAR-1: // if left sensor between 10 cm to 20cm pivot left to face object
-//				stop_the_car();
-//				LED = 0x04;
-//				break;
-//			
-////			default:
-////				move_forward();
-////				LED = 0x04;
-////				break;
-////			
-		}
-	}else if (( frwdright >  ahead ) && ( frwdright >  frwdleft )){
-		Timer1A_Delay(delay);//timer for test casing LED values with SENSOR ONLY CONFIG
-		switch(frwdright){
-//			case TOO_CLOSE+1 ... MIN_VAL: // if left sensor between 10 cm to 20cm pivot left to face object
-//				stop_the_car();
-//				LED = 0x02;
-//				break;
-//			
-			case TOO_FAR ... TOO_CLOSE: // if right sensor between 10 cm to 20 cm pivot right to face object
-				move_right_turn();
-				LED = 0x06;
-				break;
-////			
-//			case MAX_VAL ... TOO_FAR-1: // if left sensor between 10 cm to 20cm pivot left to face object
-//				stop_the_car();
-//				LED = 0x04;
-//				break;
-//			
-////			default:
-////				move_forward();
-////				LED = 0x04;
-////				break;
-//		Timer1A_Delay(delay);//timer for test casing LED values with SENSOR ONLY CONFIG
+	for (int i=0;i<10;i++) {
+		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	}
+//  ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	//while(mode == OBJECT_FOLLOWER){
+		if(( frwdleft >  ahead ) && ( frwdleft >  frwdright )){
+			switch(frwdleft){
+
+				case TOO_FAR ... TOO_CLOSE: // if left sensor between 10 cm to 20cm pivot left to face object
+					move_left_turn();
+					break;
+
+			}
+		}else if (( frwdright >  ahead ) && ( frwdright >  frwdleft )){
+			//Timer1A_Delay(delay);//timer for test casing LED values with SENSOR ONLY CONFIG
+			switch(frwdright){
+
+				case TOO_FAR ... TOO_CLOSE: // if right sensor between 10 cm to 20 cm pivot right to face object
+					move_right_turn();
+					break;
 			}
 		} else {
-			Timer1A_Delay(delay);
+			//Timer1A_Delay(delay);
 			switch(ahead){
 			case TOO_CLOSE+1 ... MIN_VAL: // if left sensor between 10 cm to 20cm pivot left to face object
 				stop_the_car();
-				LED = 0x02; // RED
-				//mode = INACTIVE;
-				Timer1A_Delay(6769420);
+				mode = INACTIVE;
+				LED = LED_RED;
+				//Timer1A_Delay(OBJECT_FOLLOWING_DELAY);
 				break;
 			
 			case FOLLOW_CLOSE+1 ... TOO_CLOSE: // if forward sensor between 15cm to 10 cm back up
 				move_backward();
-				LED = 0x0A; // YELLOW
 				break;
 			
 			case FOLLOW_FAR ... FOLLOW_CLOSE:	// if forward sensor ahead at 15 cm then stop
 				stop_the_car();
-				LED = 0x08; // GREEN
-				//mode = INACTIVE;
-				Timer1A_Delay(6769420);
+				mode = INACTIVE;
+				LED = LED_RED;
+				//Timer1A_Delay(OBJECT_FOLLOWING_DELAY);
 				break;
 			
 			case TOO_FAR ... FOLLOW_FAR-1: // if forward sensor between 15 cm to 20 cm go forward
 				move_forward();
-				LED = 0x0C; // CYAN
 				break;
 			
 			case MAX_VAL ... TOO_FAR-1: // if left sensor between 10 cm to 20cm pivot left to face object
 				stop_the_car();
-				LED = 0x04; // BLUE
-				//mode = INACTIVE;
-				Timer1A_Delay(6769420);
+				mode = INACTIVE;
+				LED = LED_RED;
+				//Timer1A_Delay(OBJECT_FOLLOWING_DELAY);
 				break;
-			
-//			default:
-//				move_forward();
-//				LED = 0x04;
-//				break;
-		} 
-		Timer1A_Delay(delay);//timer for test casing LED values with SENSOR ONLY CONFIG
-		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	}
+			} 
+		}
+		Timer1A_Delay(OBJECT_FOLLOWING_DELAY);//timer for test casing LED values with SENSOR ONLY CONFIG
+		//ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	//}
 }
 
 // PROJECT 2, PART 4
 void wall_follower(void){
-	LED = 0x00;
+	LED = LED_GREEN;
 }
 
 // L range: 8000,16000,24000,32000,40000,48000,56000,64000,72000
 // power:   10%    20%   30%   40%   50%   60%   70%   80%   90%
 void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
-  if(GPIO_PORTF_RIS_R&0x01){  // SW2 touchG
-    GPIO_PORTF_ICR_R = 0x01;  // acknowledge flag0
-	if(mode == INACTIVE)
-		mode = OBJECT_FOLLOWER;
-	else if(mode == OBJECT_FOLLOWER)
-		mode = WALL_FOLLOWER;
-
+  if(GPIO_PORTF_RIS_R&SW2_MASK){  // SW2 touchG
+    GPIO_PORTF_ICR_R = SW2_MASK;  // acknowledge flag0
+		if(mode == INACTIVE)
+			mode = OBJECT_FOLLOWER;
+		else if(mode == OBJECT_FOLLOWER)
+			mode = WALL_FOLLOWER;
   }
-  if(GPIO_PORTF_RIS_R&0x10){  // SW1 touch
-    GPIO_PORTF_ICR_R = 0x10;  // acknowledge flag4G
-	if(mode == INACTIVE)
-		mode = OBJECT_FOLLOWER;
+	
+  if(GPIO_PORTF_RIS_R&SW1_MASK){  // SW1 touch
+    GPIO_PORTF_ICR_R = SW1_MASK;  // acknowledge flag4G
+		if(mode == INACTIVE)
+			mode = OBJECT_FOLLOWER;
   }
 }

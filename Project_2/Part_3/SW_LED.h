@@ -18,7 +18,8 @@
 #define SWITCH       (*((volatile unsigned long *)0x40025040))
 #define LED (*((volatile unsigned long *)0x40025038))  // use onboard three LEDs: PF321
 
-#define SW1_MASK		 	0x10          // onboard switch PF4
+#define SW1_MASK 	0x01
+#define SW2_MASK 	0x10
 #define Modify_PF4 0x10
 #define PORTF_CLEAR_PCTL 0x000F0000
 #define PORTF_PUR 0x10

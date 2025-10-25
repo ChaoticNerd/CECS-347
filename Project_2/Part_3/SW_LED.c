@@ -27,11 +27,11 @@ void SW_Init(void){
   GPIO_PORTF_PUR_R |= PORTF_PUR;          	// enable pullup resistors on PF4,PF0       
   GPIO_PORTF_DEN_R |= PORTF_IN;          	// enable digital pins PF4-PF0
 
-	GPIO_PORTF_IS_R &= ~SW1_MASK;														// PF0 is edge-sensitive
-	GPIO_PORTF_IBE_R &= ~SW1_MASK;													// PF0 is not both edges
-	GPIO_PORTF_IEV_R |= SW1_MASK; 													// PF0 rising edge event 
-	GPIO_PORTF_ICR_R |= SW1_MASK; 													// Clear Flag0
-	GPIO_PORTF_IM_R |= SW1_MASK;														// Arm interrupt on PF0
+	GPIO_PORTF_IS_R &= ~(SW1_MASK|SW2_MASK);														// PF0 is edge-sensitive
+	GPIO_PORTF_IBE_R &= ~(SW1_MASK|SW2_MASK);													// PF0 is not both edges
+	GPIO_PORTF_IEV_R |= (SW1_MASK|SW2_MASK); 													// PF0 rising edge event 
+	GPIO_PORTF_ICR_R |= (SW1_MASK|SW2_MASK); 													// Clear Flag0
+	GPIO_PORTF_IM_R |= (SW1_MASK|SW2_MASK);														// Arm interrupt on PF0
 
 	NVIC_EN0_R = PORTF_IRQ;   				// (h) enable Port F edge interrupt
 }
