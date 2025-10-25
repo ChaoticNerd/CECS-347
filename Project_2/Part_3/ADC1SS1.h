@@ -21,10 +21,12 @@
 //#define FOLLOW_DIST (1979)  // replace the zero with the ADC output value for object following distance
 //#define TOO_CLOSE 	(2663)  // replace the zero with the ADC output value for minimum distance
 //Library values
-#define TOO_FAR 		(1463)  // replace the zero with the ADC output value for maximum distance
-#define FOLLOW_DIST (1979)  // replace the zero with the ADC output value for object following distance
-#define TOO_CLOSE 	(2663)  // replace the zero with the ADC output value for minimum distance
 #define MAX_VAL			(0) 
+#define TOO_FAR 		(1463)  // replace the zero with the ADC output value for maximum distance
+#define FOLLOW_FAR (1815)		//1473 INCASE
+//#define FOLLOW_DIST (1979)  // replace the zero with the ADC output value for object following distance
+#define FOLLOW_CLOSE (2143)
+#define TOO_CLOSE 	(2663)  // replace the zero with the ADC output value for minimum distance
 #define MIN_VAL 		(4096) 
 
 // This initialization function sets up the ADC according to the
