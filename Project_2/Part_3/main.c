@@ -63,7 +63,7 @@ void System_Init(void){
 void object_follower(void){
 	uint8_t i;
 	unsigned long ahead, frwdright, frwdleft, count, delay;
-	delay = 25000;
+	delay = 10000;
 	//LED = 0x0E; // ENTERS INTO THE GOBJECT FOLLOWER PROPERLY
 
 	//for (i=0;i<10;i++) {
@@ -77,193 +77,102 @@ void object_follower(void){
 	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
 	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
 	
-	while(1){
-		
-		switch(ahead){
+	//while(1){
+	if(( frwdleft >  ahead ) && ( frwdleft >  frwdright )){
+ 		switch(frwdleft){
+//			case TOO_CLOSE+1 ... MIN_VAL: // if left sensor between 10 cm to 20cm pivot left to face object
+//				stop_the_car();
+//				LED = 0x02;
+//				break;
+//			
+			case TOO_FAR ... TOO_CLOSE: // if left sensor between 10 cm to 20cm pivot left to face object
+				move_left_turn();
+				LED = 0x0E;
+				break;
+//			
+//			
+//			case MAX_VAL ... TOO_FAR-1: // if left sensor between 10 cm to 20cm pivot left to face object
+//				stop_the_car();
+//				LED = 0x04;
+//				break;
+//			
+////			default:
+////				move_forward();
+////				LED = 0x04;
+////				break;
+////			
+		}
+	}else if (( frwdright >  ahead ) && ( frwdright >  frwdleft )){
+		Timer1A_Delay(delay);//timer for test casing LED values with SENSOR ONLY CONFIG
+		switch(frwdright){
+//			case TOO_CLOSE+1 ... MIN_VAL: // if left sensor between 10 cm to 20cm pivot left to face object
+//				stop_the_car();
+//				LED = 0x02;
+//				break;
+//			
+			case TOO_FAR ... TOO_CLOSE: // if right sensor between 10 cm to 20 cm pivot right to face object
+				move_right_turn();
+				LED = 0x06;
+				break;
+////			
+//			case MAX_VAL ... TOO_FAR-1: // if left sensor between 10 cm to 20cm pivot left to face object
+//				stop_the_car();
+//				LED = 0x04;
+//				break;
+//			
+////			default:
+////				move_forward();
+////				LED = 0x04;
+////				break;
+//		Timer1A_Delay(delay);//timer for test casing LED values with SENSOR ONLY CONFIG
+			}
+		} else {
+			Timer1A_Delay(delay);
+			switch(ahead){
 			case TOO_CLOSE+1 ... MIN_VAL: // if left sensor between 10 cm to 20cm pivot left to face object
 				stop_the_car();
-				LED = 0x08;
+				LED = 0x02; // RED
+				//mode = INACTIVE;
+				Timer1A_Delay(6769420);
 				break;
 			
-			case FOLLOW_DIST+1 ... TOO_CLOSE: // if forward sensor between 15cm to 10 cm back up
+			case FOLLOW_CLOSE+1 ... TOO_CLOSE: // if forward sensor between 15cm to 10 cm back up
 				move_backward();
-				LED = 0x02;
+				LED = 0x0A; // YELLOW
 				break;
 			
-			case(FOLLOW_DIST):	// if forward sensor ahead at 15 cm then stop
+			case FOLLOW_FAR ... FOLLOW_CLOSE:	// if forward sensor ahead at 15 cm then stop
 				stop_the_car();
-				LED = 0x0A;
+				LED = 0x08; // GREEN
+				//mode = INACTIVE;
+				Timer1A_Delay(6769420);
 				break;
 			
-			case TOO_FAR ... FOLLOW_DIST-1: // if forward sensor between 15 cm to 20 cm go forward
+			case TOO_FAR ... FOLLOW_FAR-1: // if forward sensor between 15 cm to 20 cm go forward
 				move_forward();
-				LED = 0x04;
+				LED = 0x0C; // CYAN
 				break;
 			
 			case MAX_VAL ... TOO_FAR-1: // if left sensor between 10 cm to 20cm pivot left to face object
 				stop_the_car();
-				LED = 0x08;
+				LED = 0x04; // BLUE
+				//mode = INACTIVE;
+				Timer1A_Delay(6769420);
 				break;
 			
-			default:
-				move_forward();
-				LED = 0x04;
-				break;
+//			default:
+//				move_forward();
+//				LED = 0x04;
+//				break;
 		} 
-		
- 		switch(frwdleft){
-//			case TOO_CLOSE+1 ... MIN_VAL: // if left sensor between 10 cm to 20cm pivot left to face object
-//				stop_the_car();
-//				LED = 0x00;
-//				break;
-			
-			case TOO_FAR ... TOO_CLOSE: // if left sensor between 10 cm to 20cm pivot left to face object
-				move_left_pivot();
-				LED = 0x06;
-				break;
-			
-			
-//			case MAX_VAL ... TOO_FAR-1: // if left sensor between 10 cm to 20cm pivot left to face object
-//				stop_the_car();
-//				LED = 0x00;
-//				break;
-			
-			default:
-				move_forward();
-				LED = 0x04;
-				break;
-//			
-		}
-		switch(frwdright){
-//			case TOO_CLOSE+1 ... MIN_VAL: // if left sensor between 10 cm to 20cm pivot left to face object
-//				stop_the_car();
-//				LED = 0x08;
-//				break;
-			
-			case TOO_FAR ... TOO_CLOSE: // if right sensor between 10 cm to 20 cm pivot right to face object
-				move_right_pivot();
-				LED = 0x0C;
-				break;
-//			
-//			case MAX_VAL ... TOO_FAR-1: // if left sensor between 10 cm to 20cm pivot left to face object
-//				stop_the_car();
-//				LED = 0x08;
-//				break;
-			
-			default:
-				move_forward();
-				LED = 0x04;
-				break;
-		}
 		Timer1A_Delay(delay);//timer for test casing LED values with SENSOR ONLY CONFIG
 		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-		
-	
-	//}
-//	while(1){
-//			if (ahead > TOO_FAR || frwdleft > TOO_FAR || frwdright > TOO_FAR) // if any sensor within 20 cm 
-//	{
-//		stop_the_car();
-//	
-////		if ((ahead > TOO_CLOSE && frwdleft > TOO_CLOSE && frwdright > TOO_CLOSE)) // reverse if all sensor is close
-////		{
-////			LED = 0x02;
-////			move_backward();
-////		}
-////		else if ((frwdleft > TOO_CLOSE && ahead > TOO_CLOSE) || (frwdleft > TOO_CLOSE)) // if left sensor is close to obstacle, turn left
-////		{
-////			LED = 0x08;
-////			move_left_turn();
-////		}
-////		else if ((frwdright > TOO_CLOSE && ahead > TOO_CLOSE) || (frwdright > TOO_CLOSE)) // if right sensor is close to obstacle, turn right
-////		{
-////			LED = 0x04;
-////			move_right_turn();
-////		}
-//		if (ahead > TOO_FAR) // within range
-//		{
-//			
-//			if (frwdleft > TOO_CLOSE) // within range
-//			{
-//			LED = 0x02;
-//			move_right_turn();
-//			}
-//			else if (frwdright > TOO_CLOSE)
-//			{
-//			LED = 0x08;
-//			move_left_turn();		
-//			}
-//			
-//			
-//			else 
-//			{
-//			LED = 0x02;
-//			move_backward();
-//			}
-//			
-//		}
-//	}
-//	else if (ahead < TOO_FAR && frwdleft < TOO_FAR && frwdright < TOO_FAR) // stop when sensor greater than 80 cm
-//	{
-//		LED = 0x06;
-//		stop_the_car();
-//		mode = INACTIVE;
-//	}
-//	else // if any sensor is not close go straight
-//	{
-//		LED = 0x00;
-//		move_forward();
-//	}
-//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-//	}
 	}
 }
-	
-//	
-//	
-//	// Calibrate the sensor
-//	for (i=0;i<10;i++) {
-//		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-//	}
-//	
-//  // wait until an Gobstacle is in the right distant range.G
-// 	do {
-//		//LED = 0x02;
-//		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);  // read one value
-//		//ADC1_InSeq1(&ahead, &frwdleft, &frwdright);
-//		//LED = 0x04;
-
-//	} while ((ahead<TOO_CLOSE) || (ahead>TOO_FAR));
-//	LED = 0x08;
-//	// CHANGE WHILE CONDITIOINS, and IF STATEMENTS CONDITIONS oh Guck... 
-//		
-//  while (ahead < TOO_FAR || frwdright < TOO_FAR || frwdleft < TOO_FAR && 
-//		ahead > TOO_CLOSE || frwdright > TOO_CLOSE || frwdleft > TOO_CLOSE) {				//IF Left, or Right, or Forward in read is within rage too close and too far				
-
-//		
-//		if (ahead > FOLLOW_DIST && (ahead > frwdright || ahead > frwdleft)) { // IF forward > (Fixed distance), && Forward > Left Or Right 
-//			move_backward();
-//			LED = 0x02;
-//		}else if (ahead < FOLLOW_DIST && (ahead > frwdright || ahead > frwdleft)){ // IF forward < (Fixed distance), && Forward > Left Or Right 
-//			move_forward();
-//			LED = 0x08;
-//		}else if(frwdright > ahead || frwdright > frwdleft){ // IF RightG > Forward OR LEFT then pivot right UNTIL FORWARD  > than RIGHT
-//			move_right_pivot();
-//			LED = 0x06;
-//		}else if(frwdleft > ahead || frwdleft > frwdright){ //IF LEFTG > Forawrd or RIGHT then Pivot left until FORWARD > THan LEFT
-//			move_left_pivot();
-//			LED = 0x0C;
-//		}else { // right distance, stop
-//			stop_the_car(); 
-//			//LED = 0x00;
-//		}
-//		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-//  }
-  
-
 
 // PROJECT 2, PART 4
 void wall_follower(void){
+	LED = 0x00;
 }
 
 // L range: 8000,16000,24000,32000,40000,48000,56000,64000,72000

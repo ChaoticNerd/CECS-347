@@ -22,7 +22,7 @@
 #define THIRTY_DUTY  16000 * 0.3
 #define EIGHTY_DUTY  16000 * 0.8
 
-// PB5432 are used for direction control on L298.
+// PB7632 are used for direction control on L298.
 // Motor 1 is connected to the left wheel, Motor 2 is connected to the right wheel.
 #define BACKWARD 0x88 			// 10XX10	
 #define FORWARD 0xCC 		// 11XX11
