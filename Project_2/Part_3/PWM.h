@@ -21,6 +21,7 @@
 #define TWENTY_DUTY  16000 * 0.2
 #define THIRTY_DUTY  16000 * 0.3
 #define EIGHTY_DUTY  16000 * 0.8
+#define TEN_DUTY		 16000 * 0.1
 
 // PB7632 are used for direction control on L298.
 // Motor 1 is connected to the left wheel, Motor 2 is connected to the right wheel.
@@ -52,6 +53,8 @@ void move_backward(void);
 void move_forward(void);
 void move_left_turn(void);
 void move_right_turn(void);
+void move_left_back(void);
+void move_right_back(void);
 
 // Dependency: PWM_PB76_Init()
 // Inputs: 

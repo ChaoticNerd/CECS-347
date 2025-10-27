@@ -28,6 +28,7 @@ extern void WaitForInterrupt(void);  // low power mode
 void System_Init(void);
 void object_follower(void);
 void wall_follower(void);
+int direction_sensor(unsigned long,unsigned long,unsigned long);
 
 enum robot_modes mode = INACTIVE;
 
@@ -64,71 +65,60 @@ void System_Init(void){
 
 // PROJECT 2, PART 3
 void object_follower(void){
-	unsigned long ahead, frwdright, frwdleft, count, delay;
+	unsigned long ahead, frwdright, frwdleft, count, delay, pivot_delay,direct_switch;
 	LED = LED_BLUE;
+	delay = 200;
 
 	for (int i=0;i<10;i++) {
 		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
 	}
-//  ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-//	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	//while(mode == OBJECT_FOLLOWER){
-		if(( frwdleft >  ahead ) && ( frwdleft >  frwdright )){
-			switch(frwdleft){
+	
+	do{
+		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	}while((ahead < TOO_FAR && ahead > TOO_CLOSE) || (frwdleft < TOO_FAR && frwdleft > TOO_CLOSE) ||(frwdright < TOO_FAR && frwdright > TOO_CLOSE) );
 
-				case TOO_FAR ... TOO_CLOSE: // if left sensor between 10 cm to 20cm pivot left to face object
-					move_left_turn();
-					break;
-
-			}
-		}else if (( frwdright >  ahead ) && ( frwdright >  frwdleft )){
-			//Timer1A_Delay(delay);//timer for test casing LED values with SENSOR ONLY CONFIG
-			switch(frwdright){
-
-				case TOO_FAR ... TOO_CLOSE: // if right sensor between 10 cm to 20 cm pivot right to face object
-					move_right_turn();
-					break;
-			}
-		} else {
-			//Timer1A_Delay(delay);
-			switch(ahead){
-			case TOO_CLOSE+1 ... MIN_VAL: // if left sensor between 10 cm to 20cm pivot left to face object
-				stop_the_car();
-				mode = INACTIVE;
-				LED = LED_RED;
-				//Timer1A_Delay(OBJECT_FOLLOWING_DELAY);
-				break;
-			
-			case FOLLOW_CLOSE+1 ... TOO_CLOSE: // if forward sensor between 15cm to 10 cm back up
-				move_backward();
-				break;
-			
-			case FOLLOW_FAR ... FOLLOW_CLOSE:	// if forward sensor ahead at 15 cm then stop
-				stop_the_car();
-				mode = INACTIVE;
-				LED = LED_RED;
-				//Timer1A_Delay(OBJECT_FOLLOWING_DELAY);
-				break;
-			
-			case TOO_FAR ... FOLLOW_FAR-1: // if forward sensor between 15 cm to 20 cm go forward
+	direct_switch = direction_sensor(ahead,frwdleft,frwdright);
+	stop_the_car();
+	Timer1A_Delay(delay);
+	switch(direct_switch){
+		case 1:
+			if((TOO_FAR < ahead)&&(ahead < FOLLOW_FAR))
 				move_forward();
-				break;
-			
-			case MAX_VAL ... TOO_FAR-1: // if left sensor between 10 cm to 20cm pivot left to face object
+			else if ((ahead < TOO_CLOSE)&&(ahead > FOLLOW_CLOSE))
+				move_backward();
+			else{
 				stop_the_car();
-				mode = INACTIVE;
 				LED = LED_RED;
-				//Timer1A_Delay(OBJECT_FOLLOWING_DELAY);
+//				mode = INACTIVE;
+			}
+			break;
+		case 2:
+			if((TOO_FAR < frwdleft)&&(frwdleft < FOLLOW_FAR))
+				move_left_back();
+			else if ((frwdleft < TOO_CLOSE)&&(frwdleft > FOLLOW_CLOSE))
+				move_left_pivot();
+			else{
+				stop_the_car();
+				LED = LED_RED;
+//				mode = INACTIVE;
+			}
+			break;
+			
+		case 3:
+			if((TOO_FAR < frwdright)&&(frwdright < FOLLOW_FAR))
+				move_right_turn();
+			else if ((frwdright < TOO_CLOSE)&&(frwdright > FOLLOW_CLOSE))
+				move_right_back();
+			else{
+				stop_the_car();
+				LED = LED_RED;
+//				mode = INACTIVE;
+			}
+			break;
+			default:
 				break;
-			} 
-		}
+	}
+		
 		Timer1A_Delay(OBJECT_FOLLOWING_DELAY);//timer for test casing LED values with SENSOR ONLY CONFIG
 		//ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
 	//}
@@ -146,8 +136,10 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
     GPIO_PORTF_ICR_R = SW2_MASK;  // acknowledge flag0
 		if(mode == INACTIVE)
 			mode = OBJECT_FOLLOWER;
-		else if(mode == OBJECT_FOLLOWER)
-			mode = WALL_FOLLOWER;
+//		else if(mode == OBJECT_FOLLOWER)
+//			mode = WALL_FOLLOWER;
+		else 
+			mode = OBJECT_FOLLOWER;
   }
 	
   if(GPIO_PORTF_RIS_R&SW1_MASK){  // SW1 touch
@@ -155,4 +147,14 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
 		if(mode == INACTIVE)
 			mode = OBJECT_FOLLOWER;
   }
+}
+
+int direction_sensor(unsigned long u1,unsigned long u2,unsigned long u3){
+	if ((u1 >= u2) && (u1>=u3))
+		return 1; // ahead w
+	else if ((u2> u1) && (u2>u3))
+		return 2; // left w
+	else if ((u3> u1) && (u3>u2))
+		return 3; // right w
+	return 1;
 }

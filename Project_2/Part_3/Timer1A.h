@@ -27,7 +27,7 @@ void Timer1A_Delay(unsigned long delay);
 #define TIMER1_PCD		0x2
 #define TIMER1_PRESCALE 249
 #define TIMER1_ENABLE	0x00000001
-#define OBJECT_FOLLOWING_DELAY 10000
+#define OBJECT_FOLLOWING_DELAY 50000 // 10k
 #endif // __TIMER2INTS_H__
 
 

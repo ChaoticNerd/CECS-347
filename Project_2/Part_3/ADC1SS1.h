@@ -22,11 +22,11 @@
 //#define TOO_CLOSE 	(2663)  // replace the zero with the ADC output value for minimum distance
 //Library values
 #define MAX_VAL			(0) 
-#define TOO_FAR 		(564)  // 1463 for library lighting :: 564 for gym lighting at 30 cm
-#define FOLLOW_FAR (1248)		// 1815 for library lighting with 15 cm as fixed :: 1248 for gym lighting @ 20cm
+#define TOO_FAR 		(700)  // 1463 for library lighting :: 564 for gym lighting at 30 cm
+#define FOLLOW_FAR (1700)		// 1815 for library lighting with 15 cm as fixed :: 1248 for gym lighting @ 20cm
 //#define FOLLOW_DIST (1979)  // replace the zero with the ADC output value for object following distance
-#define FOLLOW_CLOSE (1309) // 2143 for library lighting :: 1309 for gym lighting at 20 cm
-#define TOO_CLOSE 	(3512)  // 2663 for library lighting :: 3512 for gym lighting
+#define FOLLOW_CLOSE (1500) // 2143 for library lighting :: 1309 for gym lighting at 20 cm
+#define TOO_CLOSE 	(2300)  // 2663 for library lighting :: 3512 for gym lighting
 #define MIN_VAL 		(4096) 
 
 // This initialization function sets up the ADC according to the
