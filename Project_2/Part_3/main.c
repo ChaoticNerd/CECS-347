@@ -32,6 +32,8 @@ int direction_sensor(unsigned long,unsigned long,unsigned long);
 
 enum robot_modes mode = INACTIVE;
 
+unsigned long ahead, frwdright, frwdleft, count, direct_switch;
+
 int main(void){	
 	System_Init();
 	LED = LED_RED;
@@ -61,47 +63,48 @@ void System_Init(void){
 	PWM_PB76_Init();
 	Timer1A_Init();
   EnableInterrupts();	
+	// fill up median values
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
 }
 
 // PROJECT 2, PART 3
 void object_follower(void){
-	unsigned long ahead, frwdright, frwdleft, count, delay, pivot_delay,direct_switch;
 	LED = LED_BLUE;
-	delay = 200;
-
-	for (int i=0;i<10;i++) {
-		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	}
 	
+	ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
+
 	do{
 		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
 	}while((ahead < TOO_FAR && ahead > TOO_CLOSE) || (frwdleft < TOO_FAR && frwdleft > TOO_CLOSE) ||(frwdright < TOO_FAR && frwdright > TOO_CLOSE) );
 
 	direct_switch = direction_sensor(ahead,frwdleft,frwdright);
-	stop_the_car();
-	Timer1A_Delay(delay);
+	
 	switch(direct_switch){
 		case 1:
-			if((TOO_FAR < ahead)&&(ahead < FOLLOW_FAR))
+			if((TOO_FAR <= ahead)&&(ahead <= FOLLOW_FAR))
 				move_forward();
 			else if ((ahead < TOO_CLOSE)&&(ahead > FOLLOW_CLOSE))
 				move_backward();
+		
 			else{
-				stop_the_car();
 				LED = LED_RED;
+				stop_the_car();
 //				mode = INACTIVE;
 			}
 			break;
+			
 		case 2:
 			if((TOO_FAR < frwdleft)&&(frwdleft < FOLLOW_FAR))
-				move_left_back();
+				move_left_turn();
 			else if ((frwdleft < TOO_CLOSE)&&(frwdleft > FOLLOW_CLOSE))
-				move_left_pivot();
-			else{
-				stop_the_car();
-				LED = LED_RED;
-//				mode = INACTIVE;
-			}
+				move_left_back();
+////			else{
+////				stop_the_car();
+////				LED = LED_RED;
+//////				mode = INACTIVE;
+//			}
 			break;
 			
 		case 3:
@@ -109,24 +112,26 @@ void object_follower(void){
 				move_right_turn();
 			else if ((frwdright < TOO_CLOSE)&&(frwdright > FOLLOW_CLOSE))
 				move_right_back();
-			else{
-				stop_the_car();
-				LED = LED_RED;
-//				mode = INACTIVE;
-			}
+//			else{
+//				stop_the_car();
+//				LED = LED_RED;
+////				mode = INACTIVE;
+//			}
 			break;
-			default:
-				break;
+			
+		default:
+			move_forward();
+			break;
+
 	}
-		
-		Timer1A_Delay(OBJECT_FOLLOWING_DELAY);//timer for test casing LED values with SENSOR ONLY CONFIG
-		//ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	//}
+	Timer1A_Delay(OBJECT_FOLLOWING_DELAY);//timer for test casing LED values with SENSOR ONLY CONFIG
+	//stop_the_car();
 }
 
 // PROJECT 2, PART 4
 void wall_follower(void){
 	LED = LED_GREEN;
+	stop_the_car();
 }
 
 // L range: 8000,16000,24000,32000,40000,48000,56000,64000,72000
@@ -149,12 +154,12 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
   }
 }
 
-int direction_sensor(unsigned long u1,unsigned long u2,unsigned long u3){
-	if ((u1 >= u2) && (u1>=u3))
-		return 1; // ahead w
-	else if ((u2> u1) && (u2>u3))
-		return 2; // left w
-	else if ((u3> u1) && (u3>u2))
-		return 3; // right w
+int direction_sensor(unsigned long ahead,unsigned long left,unsigned long right){
+	if ((ahead >= left) && (ahead >= right))
+		return 1; // ahead 
+	else if ((left > ahead) && (left > right))
+		return 2; // left 
+	else if ((right > ahead) && (right > left))
+		return 3; // right 
 	return 1;
 }

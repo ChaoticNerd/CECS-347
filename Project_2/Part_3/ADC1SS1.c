@@ -27,31 +27,6 @@
 // SS3 1st sample source: Ain1 (PE2)
 // SS3 interrupts: flag set on completion but no interrupt requested
 void ADC1_SS1_Init(void){ 
-  // SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R4;   // 1) activate clock for Port E
-  // SYSCTL_RCGCADC_R |= 0x00000010;    // activate ADC 1
-	// while ((SYSCTL_RCGCGPIO_R&SYSCTL_RCGCGPIO_R4)!=SYSCTL_RCGCGPIO_R4){}
-
-	// GPIO_PORTE_DIR_R &= ~0x07;      // 2) make PE0-2 input
-  // GPIO_PORTE_AFSEL_R |= 0x07;     // 3) enable alternate function on PE0-2
-  // GPIO_PORTE_DEN_R &= ~0x07;      // 4) disable digital I/O on PE0-2
-  // GPIO_PORTE_AMSEL_R |= 0x07;     // 5) enable analog function on PE0-2
-	// 	// OK 2 THINGS, RCGC0 is a generalized legacy thing that was split up, leading to the creation of RCGADC
-  // //SYSCTL_RCGC0_R |= 0x001000000;   // 6) activate ADC1 (LEGACY)
-  
-  // // we don't give the ports set up time, need the while loop
-
-  // delay = SYSCTL_RCGCGPIO_R;      // 2) allow time for clock to stabilize
-  // delay = SYSCTL_RCGCGPIO_R;      // I dont know what these do
-	// // while ((SYSCTL_RCGC0_R&0x00100000)!=0x00100000){}
-         
-  // SYSCTL_RCGC0_R &= ~0x00000C00;  // 7) configure for 125K 
-  // ADC1_SSPRI_R = 0x0123;          // 8) Sequencer 3? is highest priority
-  // ADC1_ACTSS_R &= ~0x0002;        // 9) disable sample sequencer 1
-  // ADC1_EMUX_R &= ~0x00F0;         // 10) seq3 is software trigger
-  // ADC1_SSMUX1_R = (ADC1_SSMUX1_R&0xFFFFFF0F)+(7<<4); // 11) channel Ain1-3 (PE0-2)
-  // ADC1_SSCTL1_R = 0x0666;         // 12) no TS0 D0, yes IE0 END0-2, IF U=ERROR ENABLE ALL 4
-  // ADC1_ACTSS_R |= 0x0002;         // 13) enable sample sequencer 1
-
   // nvm, i put it in pwm
   //volatile uint16_t delay;
   SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R4;   // 1) activate clock for Port E
@@ -67,7 +42,7 @@ void ADC1_SS1_Init(void){
 		
   ADC1_PC_R &= ~0xF;              // 8) clear max sample rate field
   ADC1_PC_R |= 0x1;               //    configure for 125K samples/sec
-  ADC1_SSPRI_R = 0x3210;          // 9) Sequencer 3 is lowest priority
+  ADC1_SSPRI_R = 0x0123;          // 9) Sequencer 3 is lowest priority
   ADC1_ACTSS_R &= ~0x0002;        // 10) disable sample sequencer 1
   ADC1_EMUX_R &= ~0x00F0;         // 11) seq1 is software trigger
   ADC1_SSMUX1_R = 0x0321; //(ADC1_SSMUX1_R&0xFFFFFF0F)+(3<<4)+(2<<4)+(1<<4);         // 12) set channels for SS1 MUX 1
@@ -122,15 +97,24 @@ void ReadADCMedianFilter(unsigned long *ain3, unsigned long *ain2, unsigned long
 // A helper function for ReadADCMedianFilter()
 uint16_t median(unsigned long u1, unsigned long u2, unsigned long u3){
   unsigned long result;
-  if(u1>u2)
-    if(u2>u3)   result=u2;     // u1>u2,u2>u3       focus this: u1>u2>u3
-      else
-        if(u1>u3) result=u3;   // u1>u2,u3>u2,u1>u3 focus this: u1>u3>u2
-        else      result=u1;   // u1>u2,u3>u2,u3>u1 focus this: u3>u1>u2
-  else
-    if(u3>u2)   result=u2;     // u2>u1,u3>u2       focus this: u3>u2>u1
-      else
-        if(u1>u3) result=u1;   // u2>u1,u2>u3,u1>u3 focus this: u2>u1>u3
-        else      result=u3;   // u2>u1,u2>u3,u3>u1 focus this: u2>u3>u1
+  if(u1>u2){
+    if(u2>u3)   
+			result=u2;     // u1>u2,u2>u3       focus this: u1>u2>u3
+    else{
+        if(u1>u3) 
+					result=u3;   // u1>u2,u3>u2,u1>u3 focus this: u1>u3>u2
+        else      
+					result=u1;   // u1>u2,u3>u2,u3>u1 focus this: u3>u1>u2
+			}
+  }else{
+    if(u3>u2)   
+			result=u2;     // u2>u1,u3>u2       focus this: u3>u2>u1
+    else{
+			if(u1>u3) 
+				result=u1;   // u2>u1,u2>u3,u1>u3 focus this: u2>u1>u3
+			else      
+				result=u3;   // u2>u1,u2>u3,u3>u1 focus this: u2>u3>u1
+			}
+		}
   return(result);
 }

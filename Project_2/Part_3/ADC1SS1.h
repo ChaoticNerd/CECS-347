@@ -22,11 +22,10 @@
 //#define TOO_CLOSE 	(2663)  // replace the zero with the ADC output value for minimum distance
 //Library values
 #define MAX_VAL			(0) 
-#define TOO_FAR 		(700)  // 1463 for library lighting :: 564 for gym lighting at 30 cm
-#define FOLLOW_FAR (1700)		// 1815 for library lighting with 15 cm as fixed :: 1248 for gym lighting @ 20cm
-//#define FOLLOW_DIST (1979)  // replace the zero with the ADC output value for object following distance
-#define FOLLOW_CLOSE (1500) // 2143 for library lighting :: 1309 for gym lighting at 20 cm
-#define TOO_CLOSE 	(2300)  // 2663 for library lighting :: 3512 for gym lighting
+#define TOO_FAR 		(1200)  // 1463 for library lighting :: 564 for gym lighting at 30 cm :: 700 FOR 416
+#define FOLLOW_FAR (1300)		// 1815 for library lighting with 15 cm as fixed :: 1248 for gym lighting @ 20cm :: 1700 FOR 416
+#define FOLLOW_CLOSE (1600) // 2143 for library lighting :: 1309 for gym lighting at 20 cm :: 1500 FOR 416
+#define TOO_CLOSE 	(2300)  // 2663 for library lighting :: 3512 for gym lighting :: 2300 FOR 416
 #define MIN_VAL 		(4096) 
 
 // This initialization function sets up the ADC according to the
@@ -50,6 +49,7 @@ uint16_t ADC0_InSeq3(void);
 
 void ADC1_InSeq1(unsigned long *ain3, unsigned long *ain2, unsigned long *ain1);
 
+// PE0, PE2, PE1
 void ReadADCMedianFilter(unsigned long *ain3, unsigned long *ain2, unsigned long *ain1);
 
 uint16_t median(unsigned long u1, unsigned long u2, unsigned long u3);

@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\Hardware_PWM_Car.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Hardware_PWM_Car.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Mon Oct 27 15:13:25 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Tue Oct 28 09:30:30 2025
 <BR><P>
-<H3>Maximum Stack Usage =        152 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        120 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 __rt_entry_main &rArr; main &rArr; object_follower &rArr; ReadADCMedianFilter &rArr; median
 <P>
@@ -689,7 +689,7 @@ Global Symbols
 <P><STRONG><a name="[ca]"></a>__rt_entry_postsh_1</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$00000009))
 
 <P><STRONG><a name="[84]"></a>__rt_entry_main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$0000000D))
-<BR><BR>[Stack]<UL><LI>Max Depth = 152 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 120 + Unknown Stack Size
 <LI>Call Chain = __rt_entry_main &rArr; main &rArr; object_follower &rArr; ReadADCMedianFilter &rArr; median
 </UL>
 <BR>[Calls]<UL><LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;exit
@@ -806,9 +806,9 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = PWM_PB76_Duty
 </UL>
 <BR>[Called By]<UL><LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_right_back
-<LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_right_turn
+<LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_left_turn
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_left_back
-<LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_left_pivot
+<LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_right_turn
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_backward
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_forward
 </UL>
@@ -824,17 +824,19 @@ Global Symbols
 <LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC1_InSeq1
 </UL>
 <BR>[Called By]<UL><LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;object_follower
+<LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;System_Init
 </UL>
 
 <P><STRONG><a name="[97]"></a>SW_Init</STRONG> (Thumb, 256 bytes, Stack size 0 bytes, sw_led.o(.text.SW_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;System_Init
 </UL>
 
-<P><STRONG><a name="[91]"></a>System_Init</STRONG> (Thumb, 40 bytes, Stack size 8 bytes, main.o(.text.System_Init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 12 + Unknown Stack Size
-<LI>Call Chain = System_Init &rArr; PLL_Init
+<P><STRONG><a name="[91]"></a>System_Init</STRONG> (Thumb, 98 bytes, Stack size 24 bytes, main.o(.text.System_Init))
+<BR><BR>[Stack]<UL><LI>Max Depth = 104 + Unknown Stack Size
+<LI>Call Chain = System_Init &rArr; ReadADCMedianFilter &rArr; median
 </UL>
-<BR>[Calls]<UL><LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SW_Init
+<BR>[Calls]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadADCMedianFilter
+<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SW_Init
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Init
 <LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motors_Init
 <LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC1_SS1_Init
@@ -864,7 +866,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[85]"></a>main</STRONG> (Thumb, 74 bytes, Stack size 16 bytes, main.o(.text.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 152 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 120 + Unknown Stack Size
 <LI>Call Chain = main &rArr; object_follower &rArr; ReadADCMedianFilter &rArr; median
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;wall_follower
@@ -905,8 +907,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;object_follower
 </UL>
 
-<P><STRONG><a name="[a2]"></a>move_left_pivot</STRONG> (Thumb, 42 bytes, Stack size 8 bytes, pwm.o(.text.move_left_pivot))
-<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = move_left_pivot &rArr; PWM_PB76_Duty
+<P><STRONG><a name="[a2]"></a>move_left_turn</STRONG> (Thumb, 52 bytes, Stack size 8 bytes, pwm.o(.text.move_left_turn))
+<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = move_left_turn &rArr; PWM_PB76_Duty
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWM_PB76_Duty
 </UL>
@@ -929,16 +931,16 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;object_follower
 </UL>
 
-<P><STRONG><a name="[9b]"></a>object_follower</STRONG> (Thumb, 470 bytes, Stack size 56 bytes, main.o(.text.object_follower))
-<BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = object_follower &rArr; ReadADCMedianFilter &rArr; median
+<P><STRONG><a name="[9b]"></a>object_follower</STRONG> (Thumb, 608 bytes, Stack size 24 bytes, main.o(.text.object_follower))
+<BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = object_follower &rArr; ReadADCMedianFilter &rArr; median
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;direction_sensor
 <LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadADCMedianFilter
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Timer1A_Delay
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_right_back
-<LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_right_turn
+<LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_left_turn
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_left_back
-<LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_left_pivot
+<LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_right_turn
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_backward
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stop_the_car
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;move_forward
@@ -947,11 +949,16 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[a6]"></a>stop_the_car</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, pwm.o(.text.stop_the_car))
-<BR><BR>[Called By]<UL><LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;object_follower
+<BR><BR>[Called By]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;wall_follower
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;object_follower
 </UL>
 
-<P><STRONG><a name="[9c]"></a>wall_follower</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, main.o(.text.wall_follower))
-<BR><BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<P><STRONG><a name="[9c]"></a>wall_follower</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, main.o(.text.wall_follower))
+<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = wall_follower
+</UL>
+<BR>[Calls]<UL><LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stop_the_car
+</UL>
+<BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 <P>
 <H3>
