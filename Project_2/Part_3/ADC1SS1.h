@@ -12,8 +12,8 @@
 
 #include <stdint.h>
 
-#define ADC1_PSSI_SS1 0x0002    // start sample sequencer 3
-#define ADC1_ISC_SS1  0x0002    // acknowledge sample sequencer 3 interrupt
+#define ADC1_PSSI_SS1 0x0002    // start sample sequencer 1
+#define ADC1_ISC_SS1  0x0002    // acknowledge sample sequencer 1 interrupt
 #define ADC1_RIS_SS1  0x02
 
 //347 Room values
@@ -22,10 +22,10 @@
 //#define TOO_CLOSE 	(2663)  // replace the zero with the ADC output value for minimum distance
 //Library values
 #define MAX_VAL			(0) 
-#define TOO_FAR 		(1200)  // 1463 for library lighting :: 564 for gym lighting at 30 cm :: 700 FOR 416
-#define FOLLOW_FAR (1300)		// 1815 for library lighting with 15 cm as fixed :: 1248 for gym lighting @ 20cm :: 1700 FOR 416
-#define FOLLOW_CLOSE (1600) // 2143 for library lighting :: 1309 for gym lighting at 20 cm :: 1500 FOR 416
-#define TOO_CLOSE 	(2300)  // 2663 for library lighting :: 3512 for gym lighting :: 2300 FOR 416
+#define TOO_FAR 		(1160)  // 1463 for library lighting :: 564 for gym lighting at 30 cm :: 700 FOR 416 :: 1000 lib with cap res
+#define FOLLOW_FAR (1750)		// 1815 for library lighting with 15 cm as fixed :: 1248 for gym lighting @ 20cm :: 1700 FOR 416 :: 1200 lib with cap res
+#define FOLLOW_CLOSE (1800) // 2143 for library lighting :: 1309 for gym lighting at 20 cm :: 1500 FOR 416 :: 1400 lib with cap res
+#define TOO_CLOSE 	(3400)  // 2663 for library lighting :: 3512 for gym lighting :: 2300 FOR 416 :: 2200 lib with cap res
 #define MIN_VAL 		(4096) 
 
 // This initialization function sets up the ADC according to the

@@ -77,7 +77,7 @@ void object_follower(void){
 
 	do{
 		ReadADCMedianFilter(&ahead, &frwdleft, &frwdright);
-	}while((ahead < TOO_FAR && ahead > TOO_CLOSE) || (frwdleft < TOO_FAR && frwdleft > TOO_CLOSE) ||(frwdright < TOO_FAR && frwdright > TOO_CLOSE) );
+	}while((ahead < TOO_FAR || ahead > TOO_CLOSE) && (frwdleft < TOO_FAR || frwdleft > TOO_CLOSE) && (frwdright < TOO_FAR || frwdright > TOO_CLOSE) );
 
 	direct_switch = direction_sensor(ahead,frwdleft,frwdright);
 	
@@ -91,7 +91,7 @@ void object_follower(void){
 			else{
 				LED = LED_RED;
 				stop_the_car();
-//				mode = INACTIVE;
+				mode = INACTIVE;
 			}
 			break;
 			
@@ -100,11 +100,11 @@ void object_follower(void){
 				move_left_turn();
 			else if ((frwdleft < TOO_CLOSE)&&(frwdleft > FOLLOW_CLOSE))
 				move_left_back();
-////			else{
-////				stop_the_car();
-////				LED = LED_RED;
-//////				mode = INACTIVE;
-//			}
+			else{
+				stop_the_car();
+				LED = LED_RED;
+				mode = INACTIVE;
+			}
 			break;
 			
 		case 3:
@@ -112,11 +112,11 @@ void object_follower(void){
 				move_right_turn();
 			else if ((frwdright < TOO_CLOSE)&&(frwdright > FOLLOW_CLOSE))
 				move_right_back();
-//			else{
-//				stop_the_car();
-//				LED = LED_RED;
-////				mode = INACTIVE;
-//			}
+			else{
+				stop_the_car();
+				LED = LED_RED;
+				mode = INACTIVE;
+			}
 			break;
 			
 		default:
@@ -139,10 +139,10 @@ void wall_follower(void){
 void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
   if(GPIO_PORTF_RIS_R&SW2_MASK){  // SW2 touchG
     GPIO_PORTF_ICR_R = SW2_MASK;  // acknowledge flag0
-		if(mode == INACTIVE)
+		if(mode == INACTIVE || mode == WALL_FOLLOWER)
 			mode = OBJECT_FOLLOWER;
-//		else if(mode == OBJECT_FOLLOWER)
-//			mode = WALL_FOLLOWER;
+		else if(mode == OBJECT_FOLLOWER)
+			mode = WALL_FOLLOWER;
 		else 
 			mode = OBJECT_FOLLOWER;
   }
@@ -151,7 +151,7 @@ void GPIOPortF_Handler(void){ // called on touch of either SW1 or SW2
     GPIO_PORTF_ICR_R = SW1_MASK;  // acknowledge flag4G
 		if(mode == INACTIVE)
 			mode = OBJECT_FOLLOWER;
-  }
+  } 
 }
 
 int direction_sensor(unsigned long ahead,unsigned long left,unsigned long right){

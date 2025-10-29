@@ -42,11 +42,11 @@ void ADC1_SS1_Init(void){
 		
   ADC1_PC_R &= ~0xF;              // 8) clear max sample rate field
   ADC1_PC_R |= 0x1;               //    configure for 125K samples/sec
-  ADC1_SSPRI_R = 0x0123;          // 9) Sequencer 3 is lowest priority
+  ADC1_SSPRI_R = 0x3210;          // 9) Sequencer 3 is lowest priority
   ADC1_ACTSS_R &= ~0x0002;        // 10) disable sample sequencer 1
   ADC1_EMUX_R &= ~0x00F0;         // 11) seq1 is software trigger
   ADC1_SSMUX1_R = 0x0321; //(ADC1_SSMUX1_R&0xFFFFFF0F)+(3<<4)+(2<<4)+(1<<4);         // 12) set channels for SS1 MUX 1
-  ADC1_SSCTL1_R = 0x0644;         // 13) no D0 END0 IE0 TS0 D1 END1 IE1 TS1 D2 TS2, yes END2 IE2
+  ADC1_SSCTL1_R = 0x0600;         // 13) no D0 END0 IE0 TS0 D1 END1 IE1 TS1 D2 TS2, yes END2 IE2
   ADC1_IM_R &= ~0x0002;           // 14) disable SS1 interrupts
   ADC1_ACTSS_R |= 0x0002;         // 15) enable sample sequencer 1
 }
@@ -59,12 +59,12 @@ void ADC1_InSeq1(unsigned long *ain3, unsigned long *ain2, unsigned long *ain1){
   ADC1_PSSI_R = 0x0002;            // 1) initiate SS1 this is a seq value
 	//LED = 0x04;
   while((ADC1_RIS_R&0x02)==0);   // 2) wait for conversion done WAIT 0x04 is seq2,,, 0x02 is seq 1
-  *ain3 = ADC1_SSFIFO1_R&0xFFF;    // 3A) read first result
+  *ain1 = ADC1_SSFIFO1_R&0xFFF;    // 3A) read first result
   *ain2 = ADC1_SSFIFO1_R&0xFFF;    // 3B) read second result
-  *ain1 = ADC1_SSFIFO1_R&0xFFF;    // 3C) read third result
+  *ain3 = ADC1_SSFIFO1_R&0xFFF;    // 3C) read third result
   ADC1_ISC_R = 0x0002;             // 4) acknowledge completion
 }
-
+// 
 /*
  * Software filter using median to prevent crazy data
 */
