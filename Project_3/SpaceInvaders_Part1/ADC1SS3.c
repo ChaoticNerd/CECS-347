@@ -65,5 +65,7 @@ uint16_t ADC1SS3_In(void){
 uint8_t ADCValue_To_X_AXIS(uint16_t ADCValue, uint8_t max_x_axis) {
 	uint8_t x_position = 0;
 	// some math bullshit
+	//x_position = (ADCValue * 3.3) / 4095; // this converts ADC value to voltage
+	x_position = (ADCValue * max_x_axis) / 4095;
 	return x_position;
 }
