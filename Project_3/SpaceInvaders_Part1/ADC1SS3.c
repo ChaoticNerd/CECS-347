@@ -9,7 +9,7 @@
 // TODO
 #define ADC1_PSSI_SS3 (0x0008)    // start sample sequencer 3
 #define ADC1_ISC_SS3  (0x0008)    // acknowledge sample sequencer 3 interrupt
-#define ADC1_RIS_SS3  (0x8)
+#define ADC1_RIS_SS3  (0x08)
 
 // Function Prototype
 void ADC1SS3_Init(void);
@@ -23,11 +23,11 @@ void ADC1SS3_Init(void){
 	SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R4;   // 1) activate clock for Port E
 	while ((SYSCTL_RCGCGPIO_R&SYSCTL_RCGCGPIO_R4)!=SYSCTL_RCGCGPIO_R4){}
 	
-  GPIO_PORTE_DIR_R &= ~0x20;      // 3) make PE0-2 input
-  GPIO_PORTE_AFSEL_R |= 0x20;     // 4) enable alternate function on PE0-2
-  GPIO_PORTE_DEN_R &= ~0x20;      // 5) disable digital I/O on PE0-2
+  GPIO_PORTE_DIR_R &= ~0x20;      // 3) make PE5 input
+  GPIO_PORTE_AFSEL_R |= 0x20;     // 4) enable alternate function on PE5
+  GPIO_PORTE_DEN_R &= ~0x20;      // 5) disable digital I/O on PE5
 	GPIO_PORTE_PCTL_R = GPIO_PORTE_PCTL_R&0x00F00000;
-  GPIO_PORTE_AMSEL_R |= 0x20;     // 6) enable analog functionality on PE0-2
+  GPIO_PORTE_AMSEL_R |= 0x20;     // 6) enable analog functionality on PE5
 		
 	SYSCTL_RCGCADC_R |= 0x00000002; // 1) activate ADC1
 	while ((SYSCTL_RCGCADC_R&0x00000002)!=0x00000002){}
@@ -39,7 +39,7 @@ void ADC1SS3_Init(void){
   ADC1_ACTSS_R &= ~ADC1_PSSI_SS3;        // 10) disable sample sequencer 3
   ADC1_EMUX_R &= ~0xF000;         // 11) seq3 is software trigger
   ADC1_SSMUX3_R = 0x8; 						// 12) set channels for SS3 MUX 0		
-  ADC1_SSCTL3_R = 0x6000;         // 13) no D0 END0 IE0 TS0 D1 END1 IE1 TS1 D2 TS2, yes END2 IE2
+  ADC1_SSCTL3_R = 0x0006;         // 13) no D0 END0 IE0 TS0 D1 END1 IE1 TS1 D2 TS2, yes END2 IE2
   ADC1_IM_R &= ~0x0008;           // 14) disable SS3 interrupts
   ADC1_ACTSS_R |= ADC1_PSSI_SS3;         // 15) enable sample sequencer 3
 }
@@ -51,10 +51,12 @@ void ADC1SS3_Init(void){
 uint16_t ADC1SS3_In(void){
 	uint16_t ADC_Value = 0;
 	
-	ADC1_PSSI_R = ADC1_ISC_SS3;            // 1) initiate SS1 this is a seq value
-  while((ADC1_RIS_R&ADC1_RIS_SS3)==0);   // 2) wait for conversion done
+	ADC1_PSSI_R = ADC1_ISC_SS3;            // 1) initiate SS3 this is a seq value
 	
-  ADC_Value = ADC1_SSFIFO1_R&0xFFF;    // 3A) read first result
+	// STUCK IN THIS WHILE LOOP
+  while((ADC1_RIS_R & ADC1_RIS_SS3)==0);   // 2) wait for conversion done
+	
+  ADC_Value = ADC1_SSFIFO3_R&0xFFF;    // 3A) read first result
   ADC1_ISC_R = ADC1_ISC_SS3;             // 4) acknowledge completion
 	return 	ADC_Value;
 }
@@ -64,8 +66,9 @@ uint16_t ADC1SS3_In(void){
 // max_x_axis is forced to be 83
 uint8_t ADCValue_To_X_AXIS(uint16_t ADCValue, uint8_t max_x_axis) {
 	uint8_t x_position = 0;
-	// some math bullshit
-	//x_position = (ADCValue * 3.3) / 4095; // this converts ADC value to voltage
-	x_position = (ADCValue * max_x_axis) / 4095;
+	
+	//x_position = ( (int)( (ADCValue * 3.3) / 4095) >> 4); // this converts ADC value to voltage
+	x_position = ((ADCValue * max_x_axis) / 4095);
+	
 	return x_position;
 }
