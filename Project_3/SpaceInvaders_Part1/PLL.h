@@ -18,7 +18,7 @@
 
 // TODO:
 // Determine the #define statement SYSDIV initializes
-// the PLL to the desired frequency.
+// the PLL to the desired frequency (80MHz)
 #define SYSDIV  4 
 // bus frequency is 400MMHz/(SYSDIV+1)
 

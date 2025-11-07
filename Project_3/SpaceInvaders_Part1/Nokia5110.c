@@ -16,6 +16,17 @@
 #define RESET                   (*((volatile unsigned long *)0x0))
 #define RESET_LOW               (0)
 #define RESET_HIGH              (0)
+#define SSI2_CR1_MASTER 	0x4
+#define SSI2_CR1_ENABLE 	0x2
+#define SSI2_CC_SYSCLK 		0x0
+#define SSI2_CR0_SCR  0xFF00 // CLEAR to: CPSDVSR = 0 since we set it to 16 with CPSR_R
+#define SSI2_CR0_SPH   0x0080 // CLEAR to: Data captured on first clk edge
+#define SSI2_CR0_SPO   0x0040 // CLEAR to: Steady state Low on SSInClk
+#define SSI2_CR0_FRF   0x0030 // CLEAR to: Freescale
+#define SSI2_CR0_DSS   0x0007 // SET to 8 bit 
+#define SSI2_CPSR_20   0x4F;	// For Divsor
+
+
 
 enum typeOfWrite{
   COMMAND,                              // the transmission is an LCD command
@@ -43,6 +54,18 @@ enum typeOfWrite{
 // outputs: none
 // assumes: SSI2 and corresponding GPIO port have already been initialized and enabled
 void static lcdwrite(enum typeOfWrite type, char message){
+	  if(type == COMMAND){
+                                       // wait until SSI0 not busy/transmit FIFO empty
+    while((SSI2_SR_R & SSI_SR_BSY) == SSI_SR_BSY){};
+			DC = DC_COMMAND;
+			SSI0_DR_R = message;                // command out
+																					// wait until SSI0 not busy/transmit FIFO empty
+			while((SSI2_SR_R & SSI_SR_BSY) == SSI_SR_BSY){};
+		}else{
+			while((SSI2_SR_R & SSI_SR_TNF) == 0){}; // wait until transmit FIFO not full
+			DC = DC_DATA;
+			SSI0_DR_R = message;                // data out
+  }
 }
 
 //********Nokia5110_Init*****************
@@ -52,6 +75,30 @@ void static lcdwrite(enum typeOfWrite type, char message){
 // outputs: none
 // assumes: system clock rate of 80 MHz
 void Nokia5110_Init(void){
+	// Enable PortB4,5,7 (no 6, no need to recieve data)
+	SYSCTL_RCGC2_R = SYSCTL_RCGC2_GPIOB;
+	while((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOB) == 0);
+	
+	GPIO_PORTB_CR_R 		|= 0xB0; 			// Allow changes to 457
+	GPIO_PORTB_AMSEL_R	&= ~0xB0;			// Disable analog on 457
+	GPIO_PORTB_PCTL_R		 = 0x00000000;// Clear for GPIO on 457
+	GPIO_PORTB_DIR_R		&= ~0xB0;			// Clear for output on 457
+	GPIO_PORTB_AFSEL_R	|= 0xB0;			// Enable alt funct 457
+	GPIO_PORTB_PUR_R		&= ~0xB0;			// Disable pull up resistors
+	GPIO_PORTB_DEN_R		|= 0xB0;			// Enable digital 457
+	
+
+	// SET UP SSI
+	SSI2_CR1_R &= ~SSI2_CR1_ENABLE;		// CLEAR disable (bit 1 to 0)
+	SSI2_CR1_R &= ~SSI2_CR1_MASTER;		// CLEAR master (bit 2 to 0)
+	
+	SSI2_CC_R = SSI2_CC_SYSCLK;				// Use PLL/SYSCLK (Bit 3:0 to 0)
+	SSI2_CPSR_R = SSI2_CPSR_20; // 80Mhz of PLL / 20 
+
+	SSI2_CR0_R &= ~(SSI2_CR0_SCR | SSI2_CR0_SPH | SSI2_CR0_SPO | SSI2_CR0_FRF); // CLEAR
+	SSI2_CR0_R = SSI2_CR0_DSS; // SET
+	
+	SSI2_CR1_R |= SSI2_CR1_ENABLE; // SET
 }
 
 //********Nokia5110_OutChar*****************
