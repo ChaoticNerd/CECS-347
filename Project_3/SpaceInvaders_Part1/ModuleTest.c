@@ -71,5 +71,18 @@ void Delay100ms(uint32_t count){
 
 #ifdef LCD_TEST
 void LCD_Test(void){
+	unsigned int count = 0;
+  Nokia5110_Clear();
+  //Nokia5110_OutString((uint8_t *)prompt);
+//  Nokia5110_OutChar(LB);               // print LB sign for Long Beach
+  while(1){
+    Nokia5110_SetCursor(5, 5);          // five leading spaces, bottom row
+    Nokia5110_OutChar((count%26)+'A');
+    Nokia5110_OutChar(' ');
+    Nokia5110_OutUDec(count);
+		//    Delay(8333333);                     // For board: delay ~0.5 sec at 50 MHz
+    Delay100ms(5);                     // For simulator: delay ~0.5 sec at 50 MHz
+    count = count + 1;
+  }
 }
 #endif

@@ -2,20 +2,21 @@
 // Runs on TM4C123
 // CECS 347 Project 2 - Space Invaders
 // SSI1 is used to interface with Nokia5110.
-// Group number:
-// Group members:
+// Port B4567 for SSI, Port B01 for DC/RESET respectively
+// Group number: 15
+// Group members: Natasha Kho, Justin Narciso
 
 #include "Nokia5110.h"
 #include "tm4c123gh6pm.h"
 #include <stdint.h>
 
 // TODO: finish the following bit addresses and constants definitions
-#define DC                      (*((volatile uint32_t *)0x0))
-#define DC_COMMAND              (0)
-#define DC_DATA                 (0)
-#define RESET                   (*((volatile unsigned long *)0x0))
-#define RESET_LOW               (0)
-#define RESET_HIGH              (0)
+#define DC      (*((volatile uint32_t *)0x40005004)) // PB0 (mask 0x01 -> 0x04)
+#define RESET   (*((volatile uint32_t *)0x40005008)) // PB1 (mask 0x02 -> 0x08)
+#define DC_COMMAND   0x00
+#define DC_DATA      0x01
+#define RESET_LOW    0x00
+#define RESET_HIGH   0x02
 #define SSI2_CR1_MASTER 	0x4
 #define SSI2_CR1_ENABLE 	0x2
 #define SSI2_CC_SYSCLK 		0x0
@@ -58,48 +59,70 @@ void static lcdwrite(enum typeOfWrite type, char message){
                                        // wait until SSI0 not busy/transmit FIFO empty
     while((SSI2_SR_R & SSI_SR_BSY) == SSI_SR_BSY){};
 			DC = DC_COMMAND;
-			SSI0_DR_R = message;                // command out
+			SSI2_DR_R = message;                // command out
 																					// wait until SSI0 not busy/transmit FIFO empty
 			while((SSI2_SR_R & SSI_SR_BSY) == SSI_SR_BSY){};
 		}else{
 			while((SSI2_SR_R & SSI_SR_TNF) == 0){}; // wait until transmit FIFO not full
 			DC = DC_DATA;
-			SSI0_DR_R = message;                // data out
+			SSI2_DR_R = message;                // data out
   }
 }
 
 //********Nokia5110_Init*****************
 // Initialize Nokia 5110 48x84 LCD by sending the proper
-// commands to the PCD8544 driver.  
+// commands to the PCB4567 driver for SSI and B01 for GPIO 
 // inputs: none
 // outputs: none
 // assumes: system clock rate of 80 MHz
+// NEED TO MAP 0x4000A000, 0x4000AFC8
 void Nokia5110_Init(void){
-	// Enable PortB4,5,7 (no 6, no need to recieve data)
-	SYSCTL_RCGC2_R = SYSCTL_RCGC2_GPIOB;
-	while((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOB) == 0);
-	
-	GPIO_PORTB_CR_R 		|= 0xB0; 			// Allow changes to 457
-	GPIO_PORTB_AMSEL_R	&= ~0xB0;			// Disable analog on 457
-	GPIO_PORTB_PCTL_R		 = 0x00000000;// Clear for GPIO on 457
-	GPIO_PORTB_DIR_R		&= ~0xB0;			// Clear for output on 457
-	GPIO_PORTB_AFSEL_R	|= 0xB0;			// Enable alt funct 457
-	GPIO_PORTB_PUR_R		&= ~0xB0;			// Disable pull up resistors
-	GPIO_PORTB_DEN_R		|= 0xB0;			// Enable digital 457
-	
+	volatile unsigned long delay;
+  // 1) Clocks: GPIOB + SSI2
+  SYSCTL_RCGCGPIO_R |= (1U << 1);   // Port B
+  SYSCTL_RCGCSSI_R  |= (1U << 2);   // SSI2
+  (void)SYSCTL_RCGCGPIO_R;          // allow clocks to start
+  (void)SYSCTL_RCGCSSI_R;
 
-	// SET UP SSI
-	SSI2_CR1_R &= ~SSI2_CR1_ENABLE;		// CLEAR disable (bit 1 to 0)
-	SSI2_CR1_R &= ~SSI2_CR1_MASTER;		// CLEAR master (bit 2 to 0)
-	
-	SSI2_CC_R = SSI2_CC_SYSCLK;				// Use PLL/SYSCLK (Bit 3:0 to 0)
-	SSI2_CPSR_R = SSI2_CPSR_20; // 80Mhz of PLL / 20 
+  // 2) PB0, PB1 as GPIO outputs for DC/RESET
+  GPIO_PORTB_AFSEL_R &= ~(0x03);    // PB1-0 as GPIO
+  GPIO_PORTB_PCTL_R  &= ~0x000000FF;// clear PCTL for PB1-0
+  GPIO_PORTB_AMSEL_R &= ~(0x03);    // digital
+  GPIO_PORTB_DIR_R   |=  (0x03);    // outputs
+  GPIO_PORTB_DEN_R   |=  (0x03);
 
-	SSI2_CR0_R &= ~(SSI2_CR0_SCR | SSI2_CR0_SPH | SSI2_CR0_SPO | SSI2_CR0_FRF); // CLEAR
-	SSI2_CR0_R = SSI2_CR0_DSS; // SET
+  // 3) PB4..PB7 to SSI2: CLK(F), FSS(E), Rx(6), Tx(7) -> all function 2
+  GPIO_PORTB_AFSEL_R |=  0xF0;
+  GPIO_PORTB_DEN_R   |=  0xF0;
+  GPIO_PORTB_AMSEL_R &= ~0xF0;
+  GPIO_PORTB_PCTL_R   = (GPIO_PORTB_PCTL_R & ~0xFFFF0000) | 0x22220000;
 	
-	SSI2_CR1_R |= SSI2_CR1_ENABLE; // SET
+	 // 4) Configure SSI2 (Motorola SPI, mode 0, 8-bit, 4 MHz @ 80 MHz sysclk)
+  SSI2_CR1_R = 0;                   // disable SSI, master mode
+  // CPSDVSR must be even 2..254; SCR >=0; SSIClk = SysClk/(CPSDVSR*(1+SCR))
+  SSI2_CPSR_R = 20;                 // 80 MHz / 20 = 4 MHz (with SCR=0)
+  SSI2_CR0_R  = (0                   // SCR = 0
+                | (0 << 6)           // SPH = 0 (mode 0)
+                | (0 << 7)           // SPO = 0 (mode 0)
+                | 0x07);             // DSS = 7 -> 8-bit data
+  SSI2_CR1_R |= SSI_CR1_SSE;        // enable SSI2
+
+  // 5) Reset pulse and basic LCD init (per Nokia 5110 datasheet)
+  RESET = RESET_LOW;                // hold low >= 100 ns
+  //for (volatile int i=0; i<1000; i++) { __asm("nop"); }
+	for(delay=0; delay<10; delay=delay+1){}
+  RESET = RESET_HIGH;
+
+	lcdwrite(COMMAND, 0x21);              // chip active; horizontal addressing mode (V = 0); use extended instruction set (H = 1)
+                                        // set LCD Vop (contrast), which may require some tweaking:
+  lcdwrite(COMMAND, CONTRAST);          // try 0xB1 (for 3.3V red SparkFun), 0xB8 (for 3.3V blue SparkFun), 0xBF if your display is too dark, or 0x80 to 0xFF if experimenting
+  lcdwrite(COMMAND, 0x04);              // set temp coefficient
+  lcdwrite(COMMAND, 0x14);              // LCD bias mode 1:48: try 0x13 or 0x14
+
+  lcdwrite(COMMAND, 0x20);              // we must send 0x20 before modifying the display control mode
+  lcdwrite(COMMAND, 0x0C);              // set display control to normal mode: 0x0D for inverse
 }
+
 
 //********Nokia5110_OutChar*****************
 // Print a character to the Nokia 5110 48x84 LCD.  The
