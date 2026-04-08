@@ -1,8 +1,8 @@
 // SpaceInvaders.c
 // Runs on TM4C123
 // Starter file for CECS 347 Project 2 - Space Invaders
-// Min He
-// November 15, 2022
+// Group number: 15
+// Group members: Natasha Kho, Justin Narciso
 
 // Reference:
 // http://www.spaceinvaders.de/
@@ -38,11 +38,11 @@
 // Nokia 5110: interface with SSI2
 // ---------------
 // Signal        (Nokia 5110) LaunchPad pin
-// Reset         (RST) connected to ?
-// SSI0Fss       (CE) connected to ?
-// Data/Command  (DC) connected to ?
-// SSI0Tx        (Din) connected to ?
-// SSI0Clk       (Clk) connected to ?
+// Reset         (RST) connected to PB1
+// SSI0Fss       (CE) connected to 	PB5
+// Data/Command  (DC) connected to 	PB0
+// SSI0Tx        (Din) connected to PB7
+// SSI0Clk       (Clk) connected to PB4
 // 3.3V          (Vcc) power
 // back light    (BL) not connected, consists of 4 white LEDs which draw ~80mA total
 // Ground        (Gnd) ground
@@ -53,8 +53,12 @@
 #include "PLL.h"
 #include "switch.h"
 #include "Systick.h"
+#include "Timer1A.h"
+#include "DAC.h"
+#include "Sound.h"
 #include "ADC1SS3.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <stdbool.h>
 
 // enemy that starts at the top of the screen (arms/mouth closed)
@@ -194,170 +198,595 @@ const unsigned char SmallExplosion0[] = {
  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF};
 
 
+//------------------ ENUMS AND GLOBAL CONSTANTS ------------------//
+
+// Game state
 enum game_status{OVER,ON};
+
+// Life state for objects (player, enemies, bullet)
 enum life_status{DEAD, ALIVE};
+
+// Enemy sprite posture (used to animate between A/B images)
 enum enemy_posture{CLOSE, OPEN};
 
+// Level identifiers
+enum game_level{LVLONE, LVLTWO, LVLTHREE};
+
+// Player sprite dimensions (read from PlayerShip0 image data)
 #define PLAYERW     ((unsigned char)PlayerShip0[18])
-#define PLAYERH     ((unsigned char)PlayerShip0[22])
+#define PLAYERH     ((unsigned char)PlayerShip0[8])
+
+// Enemy sprite width (unused constant ENEMY10W, but defined)
 #define ENEMY10W    16  
+
+// Laser / bullet dimensions
 #define LASERH      9
 #define LASERW      2
 #define BULLETH     LASERH
 #define BULLETW     LASERW
 
+// Enemy count and layout
+#define max_enemy	 		9    // Total enemies (across all rows)
+#define row1_Enemies 	2    // # enemies enabled in row 1 (for level 1)
+#define row2_Enemies 	3    // # enemies enabled in row 2 (for level 2)
+#define row3_Enemies 	4    // # enemies enabled in row 3 (for level 3)
+#define enemy_types  	3    // # different enemy sprite types (cycled with % enemy_types)
+
+// Enemy row Y positions
+#define row1_Y 	10
+#define row2_Y 	20
+#define row3_Y 	30
+
+// Base X spacing between enemies
+#define base_Enemy_X 		20
+
+// "Hidden" position to move inactive enemies off-screen
+#define Enemy_hide_X 		83
+#define Enemy_hide_Y 		0
+
+// Horizontal offsets per row (for staggering rows)
+#define row1_X_Offset 	0
+#define row2_X_Offset 	13
+#define row3_X_Offset 	0
+
+// Enemy dimensions (for collision)
+#define enemy_width 		26
+#define enemy_height 		20
+
+// Player ship Y coordinate (fixed)
+#define player_Y				47
+
+// Bullet geometry and spawn offset relative to ship
+#define bullet_height 		8
+#define bullet_width 			1
+#define bullet_x_offset 	9
+#define bullet_y_offset 	7
+
+// Max size for end-game prompt buffer
+#define end_prompt_size 	73
+
+// Delay values for SysTick-based waits
+#define SYSTICK_WAIT_3S 300
+
+// Per-level speeds (currently all 1; can be tuned)
+#define lvlOneSpeed 1
+#define lvlTwoSpeed 1
+#define lvlThreeSpeed 1
+
+// Current enemy/bullet movement speed
+static uint8_t speed;
+
+
+//------------------ SPRITE STRUCTURES ------------------//
+
+// Generic sprite state
 struct State {
-  uint8_t x;      // x coordinate
-  uint8_t y;      // y coordinate
-  const uint8_t *image; // ptr->image
-  bool life;            // 0=dead, 1=alive
+  uint8_t x;              // x coordinate (left or reference X)
+  uint8_t y;              // y coordinate (bottom or reference Y)
+  const uint8_t *image;   // pointer to sprite bitmap
+  bool life;              // ALIVE/DEAD (1/0)
 };          
+
 typedef struct State STyp;
-STyp Enemy[3];
+
+// Arrays / single instances for entities
+STyp Enemy[max_enemy];
 STyp PlayerShip;
 STyp Bullet;
 
-// Function prototypes
+
+//------------------ EXTERNAL FUNCTIONS (FROM OTHER FILES) ------------------//
+
 extern void EnableInterrupts(void);  // defined in startup.s
 extern void DisableInterrupts(void); // defined in startup.s
 
+//------------------ LOCAL FUNCTION PROTOTYPES ------------------//
+
 void Game_Init(void);
+void LevelTwo_Init(void);
+void LevelThree_Init(void);
 void Move(void);
 void Draw(void);
 void Start_Prompt(void);
 void End_Prompt(void);
 void System_Init(void);
+void nextLvlPrompt(void);
 
-// global variables used for game control
+//------------------ GLOBAL STATE VARIABLES ------------------//
+
+// Flag set by SysTick_Handler to trigger frame update
 bool time_to_draw=false;
+
+// Game status: OVER/ON
 bool game_s=false;
-bool score=false;
+
+// Current game level (LVLONE, LVLTWO, LVLTHREE)
+int game_lvl;
+
+// Player score
+static int score= 0 ;
+
+// Busy-wait delay prototype (not used in this snippet)
+void Delay100ms(unsigned long count);
+
+
+//------------------ MAIN PROGRAM ------------------//
 
 int main(void){
-	System_Init();
+	System_Init();  // Initialize clock, peripherals, screen, interrupts, etc.
 
   while(1){
-    Start_Prompt();
-    
+		// Show "Press SW2 to start" screen until SW2 is pressed
+		Start_Prompt();
+		
+    // Wait here until game_s is set to ON by the SW2 interrupt
 		while(game_s==OVER){};
       
-		Game_Init(); // all sprites: 3 sprites
-    Draw();
-    while (game_s==ON) {
+		// Initialize game entities and first level
+		Game_Init(); 
+    Draw();  // Initial drawing of game state
+			
+    // Main game loop: runs while the game is ON
+    while (game_s == ON) {
+			
+      // The SysTick handler sets this flag periodically
       if (time_to_draw){
-        Move();
-        Draw();
+        Move();   // Update positions / level / collisions
+        Draw();   // Redraw screen
         time_to_draw = 0;
       }
     }
     
+    // Once game_s becomes OVER, show end screen and loop back to Start_Prompt
     End_Prompt();
   }
 }
 
+
+//------------------ SYSTEM INITIALIZATION ------------------//
+
 void System_Init(void){
   DisableInterrupts();
-  PLL_Init();                   // set system clock to 80 MHz
-  SysTick_Init();
-  Switch_Init();
-  ADC1SS3_Init();
-  Nokia5110_Init();
-  Nokia5110_ClearBuffer();
-	Nokia5110_DisplayBuffer();      // draw buffer
+  PLL_Init();                  // Set system clock to 80 MHz
+	Switch_Init();               // Initialize input switches (SW1, SW2)
+  SysTick_Init();              // Initialize SysTick timer for refresh
+  Switch_Init();               // (Duplicate call; functionally harmless)
+  ADC1SS3_Init();              // Initialize ADC for potentiometer/analog input
+	Sound_Init();                // Initialize DAC/Timer for sound
+  Nokia5110_Init();            // Initialize Nokia 5110 LCD
+  Nokia5110_ClearBuffer();     // Clear off-screen buffer
+	Nokia5110_DisplayBuffer();   // Push buffer to display
   EnableInterrupts();
 }
 
+
+//------------------ UI: START AND END PROMPTS ------------------//
+
 // Display the game start prompt
 void Start_Prompt(void){
+	// 4-line message, spaced to fit the 84x48 display
+	char start_message[] = "Space       Invader     Press SW2   To Start!";
+	Nokia5110_Clear();
+	
+	Nokia5110_SetCursor(0, 1);   // Start near top-middle of screen
+	Nokia5110_OutString(start_message);	
 }
 
-// Display the game end prompt for 2 seconds
+// Display the game end prompt for ~3 seconds
 void End_Prompt(void){
+	int end_score = score;
+	static char end_message[end_prompt_size];
+	Nokia5110_Clear();
+	
+	// Show different messages depending on whether player cleared >= half enemies
+	if (score >= (max_enemy)/2){
+		char prompt[]= "You Are     A Winner!   Your Score  ";
+		sprintf(end_message, "%s%d" ,prompt, end_score);
+	} else {
+		char prompt[]= "Game Over   Nice Try!   Your Score  ";
+		sprintf(end_message, "%s%d" ,prompt, end_score);
+	}
+		
+	Nokia5110_SetCursor(0, 1);
+	Nokia5110_OutString(end_message);
+	
+	// Pause game clock so the 3-second wait doesn't affect gameplay timing
+	SysTick_Stop();
+	SysTick_WaitNs(SYSTICK_WAIT_3S);
+	SysTick_Start();
+	
 }
 
-// Initialize the game: initialize all sprites and 
-// reset refresh control and game status.
+
+//------------------ GAME / LEVEL INITIALIZATION ------------------//
+
+// Initialize the game: sprites, score, level, and bullet
 void Game_Init(void){
   time_to_draw=0;
-  score=0; // reset score
-	game_s = ON;
+  score=0;              // reset score
+	game_lvl = LVLONE;   // start at level 1
 	
-  // Version 1: add enemy initialization with close posture.
- 
-  // Version 2: add player ship initialization
-  
-  // Version 3: Add bullet initialization: you can choose Laser or Missile
+	// Initial ship position from ADC (e.g., potentiometer)
+	uint8_t shipPos = ADCValue_To_X_AXIS(ADC1SS3_In(), MAX_X);
+	
+	// Current enemy posture (local to init: they start "close")
+	static uint8_t enemy_posture = CLOSE;
+	
+	uint8_t i;
+	speed = lvlOneSpeed;  // level 1 speed
+	
+	//---------- Initialize Row 1 Enemies (visible) ----------//
+	for (i = 0; i < (row1_Enemies); i++){
+			// Spread enemies horizontally with base_Enemy_X spacing
+			Enemy[i].x = base_Enemy_X * i + row1_X_Offset;
+			Enemy[i].y = row1_Y;
+			// Choose sprite type based on index (cycles through enemy_types)
+			Enemy[i].image = SmallEnemyPointA[(i % enemy_types)];
+			Enemy[i].life = ALIVE;
+	}
+	
+	//---------- Initialize Row 2 Enemies (hidden for level 1) ----------//
+	for(i = row1_Enemies; i < (row1_Enemies + row2_Enemies); i++){
+			Enemy[i].x = Enemy_hide_X;
+			Enemy[i].y = Enemy_hide_Y;
+			Enemy[i].life = DEAD;
+	}
 
+	//---------- Initialize Row 3 Enemies (hidden for level 1) ----------//
+	for(i = (row1_Enemies + row2_Enemies); i < (max_enemy); i++){
+			Enemy[i].x = Enemy_hide_X;
+			Enemy[i].y = Enemy_hide_Y;
+			Enemy[i].life = DEAD;
+	}
+
+	//---------- Initialize Player Ship ----------//
+	if (shipPos >= (MAX_X - PLAYERW))
+		PlayerShip.x = (MAX_X - PLAYERW);  // clamp to right edge
+	else	
+		PlayerShip.x = shipPos;
+	
+	PlayerShip.y = player_Y;
+	PlayerShip.life = ALIVE;
+	PlayerShip.image = PlayerShip0;
+	
+	//---------- Initialize Bullet (inactive at start) ----------//
+	if (shipPos > (MAX_X - PLAYERW)){
+		Bullet.x = (MAX_X - PLAYERW) + bullet_x_offset;
+	} else {
+		Bullet.x = shipPos + bullet_x_offset;
+	}
+	Bullet.y = player_Y - bullet_y_offset;
+	Bullet.life = DEAD;        // bullet not on screen yet
+	Bullet.image = Laser0;
 }
 
-// Update positions for all alive sprites.
+
+//------------------ GAME LOGIC / MOVEMENT AND COLLISIONS ------------------//
+
+// Update positions for all alive sprites and handle game logic
 void Move(void){
-  uint8_t num_life = 0;
-    
-	// V3: Move Bullet: detect hit or top of the screen. 
-	// V4: If a hit is detected, play the explosion sound
+  uint8_t num_life = 0;       // counts how many enemies are still alive this frame
+	static uint8_t cooldown;   // simple cooldown flag for bullet re-use
+	static uint8_t enemy_posture;  // toggles CLOSE/OPEN to animate enemies
+	uint8_t shipPos = ADCValue_To_X_AXIS(ADC1SS3_In(), MAX_X);
+	uint8_t i;
+	
+	// If an enemy sprite currently shows an explosion, treat it as dead
+	for(i = 0; i < (max_enemy); i++){
+		if (Enemy[i].image == SmallExplosion0){
+			Enemy[i].life = DEAD;
+		}
+	}
+	
+	//---------- BULLET MOVEMENT AND COLLISION ----------//
+	if (Bullet.life == ALIVE){
+		// If cooldown is 0, "spawn" bullet at ship's current position
+		if (cooldown == 0){
+			cooldown = 1;
+			
+			// Align bullet X with ship's X (plus some offset)
+			if (shipPos > (MAX_X - PLAYERW)){
+				Bullet.x = (MAX_X - PLAYERW) + bullet_x_offset;
+			} else {
+				Bullet.x = shipPos + bullet_x_offset;
+			}
+			// Place bullet above ship
+			Bullet.y = player_Y - bullet_y_offset;
+			Bullet.image = Laser0;
 
-  // V1: Move enemies: modify x, check life:alive or dead: dead if right side reaches right screen border or detect a hit
-  // Change postures for the enemies: two postures: open/close arms/legs
-	// If current position is close, then next position will be open; vise versa.
+			Sound_Shoot();   // Play shooting sound once on spawn
+		}
+		
+		// Move bullet upward each frame
+		Bullet.y -= speed;
+		Bullet.image = Laser0;
+		
+		// If bullet reached top of screen, reset cooldown (allows new bullet)
+		if (Bullet.y == 0){
+			cooldown = 0;
+		}
+		
+		// Check bullet collision with all alive enemies
+		for(i = 0; i < (max_enemy); i++){
+			if (Enemy[i].life == ALIVE){
+        // Simple AABB-like check:
+        // - Bullet's top within enemy's vertical bounds
+        // - Bullet's horizontal span overlaps enemy's horizontal span
+				if ((((Bullet.y - bullet_height) >= (Enemy[i].y - enemy_height)) && 
+             ((Bullet.y - bullet_height) <= (Enemy[i].y))) && 
+            ((Bullet.x + bullet_width) >= Enemy[i].x) && 
+            (Bullet.x <= (Enemy[i].x + enemy_width))){
+					
+          // Bullet hits enemy
+					Bullet.life = DEAD;              // bullet disappears
+					Enemy[i].image = SmallExplosion0;// show explosion sprite
+					Sound_Explosion();               // explosion sound
+					score += 1;                      // increase player score
+					cooldown = 0;                    // allow new bullet
+				} 
+			}
+		}
+	}
+
+	//---------- ENEMY MOVEMENT AND ANIMATION ----------//
+  // Enemies move to the right; if they reach the right edge, they die.
+  // Their sprite alternates between CLOSE and OPEN for animation.
   
-	// V2: Read ADC and update player ship position: only x coordinate will be changed. 
-
-  if (num_life==0) {
-    game_s = OVER;
-  }
+	// Row 1 enemies
+	for(i = 0; i < (row1_Enemies); i++){
+		if( Enemy[i].life == ALIVE){
+			if(Enemy[i].x < MAX_X){
+				Enemy[i].x += speed;    // move right
+				num_life += 1;          // track alive enemies
+				
+				if (Enemy[i].image != SmallExplosion0){
+					if (enemy_posture == CLOSE)
+						Enemy[i].image = SmallEnemyPointA[(i % enemy_types)];
+					else
+						Enemy[i].image = SmallEnemyPointB[(i % enemy_types)];
+				}
+			}else {
+				// If it reaches right border, mark dead
+				Enemy[i].life = DEAD;
+      }
+		}
+	}
+	
+	// Row 2 enemies (only in level 2 and 3)
+	if((game_lvl == LVLTWO) || (game_lvl == LVLTHREE)){
+		for(i = row1_Enemies; i < (row1_Enemies + row2_Enemies ); i++){
+			if( Enemy[i].life == ALIVE){
+				if(Enemy[i].x < MAX_X){
+					Enemy[i].x += speed;
+					num_life += 1;
+					
+					if (Enemy[i].image != SmallExplosion0){
+						if (enemy_posture == CLOSE)
+							Enemy[i].image = SmallEnemyPointA[(i % enemy_types)];
+						else
+							Enemy[i].image = SmallEnemyPointB[(i % enemy_types)];
+					}
+				}else {
+					Enemy[i].life = DEAD;
+        }
+			}
+		}
+	}
+	
+	// Row 3 enemies (only in level 3)
+	if(game_lvl == LVLTHREE){
+		for(i = (row1_Enemies + row2_Enemies); i < (max_enemy); i++){
+			if( Enemy[i].life == ALIVE){
+				if(Enemy[i].x < MAX_X){
+					Enemy[i].x += speed;
+					num_life += 1;
+					
+					if (Enemy[i].image != SmallExplosion0){
+						if (enemy_posture == CLOSE)
+							Enemy[i].image = SmallEnemyPointA[(i % enemy_types)];
+						else
+							Enemy[i].image = SmallEnemyPointB[(i % enemy_types)];
+					}
+				}else {
+					Enemy[i].life = DEAD;
+        }
+			}
+		}
+	}
+	
+	// Toggle posture for next frame to animate enemies
+	enemy_posture = ~enemy_posture;
+		
+	//---------- PLAYER SHIP MOVEMENT ----------//
+	// Update player X position based on ADC value, clamped to right edge
+	if (shipPos > (MAX_X - PLAYERW))
+		PlayerShip.x = (MAX_X - PLAYERW);
+	else	
+		PlayerShip.x = shipPos;
+	
+	//---------- LEVEL PROGRESSION / GAME OVER ----------//
+	// If all enemies are dead, transition levels or end game.
+	if (num_life==0) {
+		enemy_posture = CLOSE;
+		
+		if ((game_lvl == LVLONE) && (score >= row1_Enemies / 2)){
+			// From Level 1 to Level 2
+			nextLvlPrompt();
+			LevelTwo_Init();
+			
+		} else if ((game_lvl == LVLTWO) && (score >= (row1_Enemies + row2_Enemies)/2)){
+			// From Level 2 to Level 3
+			nextLvlPrompt();
+			LevelThree_Init();
+			
+		} else if ((game_lvl == LVLTHREE) && (score >= (max_enemy)/2)){
+			// Cleared enough enemies in Level 3: win the game
+			game_s = OVER;
+		} else {
+			// No more enemies, but score not high enough: game over
+			game_s = OVER;
+		}
+	}
 }
 
-// Update the screen: 
-// clear display and update the screen with the 
-// current positions of all sprites that are alive.
+
+//------------------ DRAWING / RENDERING ------------------//
+
+// Update the screen: clear display and draw all alive sprites
 void Draw(void){
-  static uint8_t enemy_posture = CLOSE;  // enemy start with close posture: SmallEnemyPointA
   uint8_t i;
   
-  if (game_s==OVER) return;
+  // If game is over, don't draw anything
+  if (game_s==OVER) 
+		return;
   
   Nokia5110_ClearBuffer();
   
-  // V1:Update live enemies' positions in display buffer: screen[]
-  for(i=0;i<3;i++){
+  // Draw all alive enemies
+  for(i=0;i<max_enemy+1;i++){
     if(Enemy[i].life == ALIVE){
+			Nokia5110_PrintBMP(Enemy[i].x, Enemy[i].y, Enemy[i].image,0);
     }
   }
   
-  // V2: Update the playership position in display buffer: screen[]
-  
-  // V3: Update the bullet position in display buffer if there is one.
-  if (Bullet.life==ALIVE) {
+  // Draw the player ship
+  Nokia5110_PrintBMP(PlayerShip.x,PlayerShip.y,PlayerShip.image,0);
 	
-	// V4: if bullet is just activated, play the shoot sound here
-  }
-
-  Nokia5110_DisplayBuffer();      // Update the display with information in display buffer screen[].
+  // Draw bullet if active
+  if (Bullet.life==ALIVE){
+		Nokia5110_PrintBMP(Bullet.x,Bullet.y,Bullet.image,0);
+	}
+  
+  // Push buffer to the physical display
+  Nokia5110_DisplayBuffer();      
 }
 
-// Control screen refresh rate. 
+
+//------------------ INTERRUPT HANDLERS ------------------//
+
+// SysTick interrupt: used to control frame rate
 void SysTick_Handler(void){
-	// signal time to refresh
+	time_to_draw = 1;
 }
 
+// GPIO Port F handler: for SW1 (fire) and SW2 (start) buttons
 void GPIOPortF_Handler(void){    // called on release of either SW1 or SW2
-	// take care of button debounce
+	// Simple debounce loop (~20ms at 80MHz)
+	for (uint32_t i=0;i<160000;i++){}
+		
+	// SW1: shoot a bullet if there isn't one already
+  if(GPIO_PORTF_RIS_R&SW1_MASK){
+		if(Bullet.life != ALIVE)
+			Bullet.life = ALIVE;   // bullet will be spawned in Move()
+		
+		GPIO_PORTF_ICR_R |= SW1_MASK;   // clear interrupt flag for SW1
+	}
 	
-	// SW1: shoot a bullet if there is none.
-  
-	// SW2: start the game, change the game status to ON
+	// SW2: start the game (set game status to ON)
+	if(GPIO_PORTF_RIS_R&SW2_MASK){
+		game_s = ON;
+		GPIO_PORTF_ICR_R |= SW2_MASK;   // clear interrupt flag for SW2
+	}
 }
 
-// Delay function used for game over prompt timing control: 2s
-// To Do: modify the time constant used in the code to generate approximately 2s delay.
-void Delay100ms(unsigned long count){
-  unsigned long volatile time;
-  while(count>0){
-    time = 72724;  // 0.1sec at 16 MHz
-    while(time){
-	  	time--;
-    }
-    count--;
-  }
+// Original commented collision logic (for reference)
+//(((Enemy[i].y <= (Bullet.y - bullet_height)) || (Enemy[i].y <= (Bullet.y - bullet_height))) && ((Enemy[i].x <= (Bullet.x + bullet_width) || ((Enemy[i].x + enemy_width) >= (Bullet.x)))))
+
+//------------------ LEVEL 2 INITIALIZATION ------------------//
+
+void LevelTwo_Init(void){
+	uint8_t i;
+	game_lvl = LVLTWO;
+	speed = lvlTwoSpeed;  // adjust speed for level 2
+	
+	// Row 1 enemies (same positions as in level 1)
+	for (i = 0; i < (row1_Enemies); i++){
+			Enemy[i].x = base_Enemy_X * i + row1_X_Offset;
+			Enemy[i].y = row1_Y;
+			Enemy[i].image = SmallEnemyPointA[(i % enemy_types)];
+			Enemy[i].life = ALIVE;
+	}
+	
+	// Row 2 enemies: now visible for level 2
+	for(i = row1_Enemies; i < (row1_Enemies + row2_Enemies); i++){
+			Enemy[i].x = base_Enemy_X * (i - row1_Enemies) + row2_X_Offset;
+			Enemy[i].y = row2_Y;
+			Enemy[i].image = SmallEnemyPointA[(i % enemy_types)];
+			Enemy[i].life = ALIVE;
+	}
+
+	// Row 3 enemies remain hidden in level 2
+	for(i = (row1_Enemies + row2_Enemies); i < (max_enemy); i++){
+			Enemy[i].x = Enemy_hide_X;
+			Enemy[i].y = Enemy_hide_Y;
+			Enemy[i].life = DEAD;
+	}
+}
+
+
+//------------------ LEVEL 3 INITIALIZATION ------------------//
+
+void LevelThree_Init(void){
+	uint8_t i;
+	game_lvl = LVLTHREE;
+	speed = lvlThreeSpeed;   // adjust speed for level 3
+	
+	// Row 1 enemies
+	for (i = 0; i < (row1_Enemies); i++){
+			Enemy[i].x = base_Enemy_X * i + row1_X_Offset;
+			Enemy[i].y = row1_Y;
+			Enemy[i].image = SmallEnemyPointA[(i % enemy_types)];
+			Enemy[i].life = ALIVE;
+	}
+	
+	// Row 2 enemies
+	for(i = row1_Enemies; i < (row1_Enemies + row2_Enemies); i++){
+			Enemy[i].x = base_Enemy_X * (i - row1_Enemies) + row2_X_Offset;
+			Enemy[i].y = row2_Y;
+			Enemy[i].image = SmallEnemyPointA[(i % enemy_types)];
+			Enemy[i].life = ALIVE;
+	}
+
+	// Row 3 enemies now also visible
+	for(i = (row1_Enemies + row2_Enemies); i < (max_enemy); i++){
+			Enemy[i].x = base_Enemy_X * (i - (row1_Enemies + row2_Enemies) + row3_X_Offset);
+			Enemy[i].y = row3_Y;
+			Enemy[i].image = SmallEnemyPointA[(i % enemy_types)];
+			Enemy[i].life = ALIVE;
+	}
+}
+
+
+//------------------ LEVEL-UP PROMPT ------------------//
+
+void nextLvlPrompt(void){
+	char prompt[]= "LEVEL UP";
+	Nokia5110_Clear();
+	Nokia5110_SetCursor(2, 2);   // center-ish on screen
+	Nokia5110_OutString(prompt);
+	
+	// Pause game for ~3 seconds then resume
+	SysTick_Stop();
+	SysTick_WaitNs(SYSTICK_WAIT_3S);
+	SysTick_Start();
 }

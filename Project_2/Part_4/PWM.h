@@ -1,0 +1,78 @@
+/////////////////////////////////////////////////////////////////////////////
+// Course Number: CECS 347
+// Assignment: Project 2, Part 1
+// @author: Justin Narciso
+// @author: Natasha Kho
+// @date 10/1/2025
+// CSULB Computer Engineering
+// Description: Contains the initialization for the PWM hardware module on 
+// 							the tm4c. Also has the function to control the duty
+//							cycles.
+/////////////////////////////////////////////////////////////////////////////
+
+//////////////////////2. Declarations Section////////////////////////////////
+									////////// Constants //////////
+#define WHEEL_DIR (*((volatile unsigned long *)0x40005330)) // PB7632 are the four direction pins for L298
+
+// Constant definitions based on the following hardware interface:
+// System clock is 16MHz.
+#define TOTAL_PERIOD 10000 //  16MHz/10000=16000
+
+// PB7632 are used for direction control on L298.
+// Motor 1 is connected to the left wheel, Motor 2 is connected to the right wheel.
+#define BACKWARD 0x88 			// 10XX10	
+#define FORWARD 0xCC 		// 11XX11
+#define RIGHTPIVOT 0xC8 		// 11XX10
+#define LEFTPIVOT 0x8C 	// 10XX11
+
+// Bit masking for init
+#define PORTB_45_MASK 0x30
+#define SYSCTL_RCGCPWM_PWM0 0x01
+#define PORTB_45_PWM1_CLEAR 0x00FF0000
+#define PORTB_45_PWM1_EN 0x00440000
+#define PORTB_CLEAR_PREV_PWM_VALUES 0x001E0000
+#define PWM0_1_RESET 0
+#define PWM0_1_GENA_LOWLOAD_HIGH_CMPADOWN 0xC8
+#define PWM0_1_GENB_LOWLOAD_HIGH_CMPBDOWN 0xC08
+#define PWM0_1_CTL_EN_COUNTDOWN 0x00000001
+#define PWM0_PB54_EN 0x0000000C
+
+//Wheels 
+#define BOTH_WHEEL 0x0000000C;
+#define RIGHT_WHEEL 0x00000008;
+#define LEFT_WHEEL 0x00000004;
+//////////////////////1. Declarations Section////////////////////////////////
+////////// Function Prototypes //////////
+// Dependency: None
+// Inputs: None
+// Outputs: None
+// Description: 
+//	Initializes the PWM module 1 signals tied to PF321 on the Tiva Launchpad 
+//		to allow for changing brightness of LEDs based on vehicle speed.
+//	Initializes the PWM module 0 signals tied to PB76 to be used with the 
+//		L298N motor driver allowing for a variable speed of robot car.
+void PWM_PB45_Init(void);
+
+void right_pivot(void);
+void left_pivot(void);
+void stop(void);
+void backward(void);
+void forward(void);
+void left_forward(void);
+void right_forward(void);
+void left_back(void);
+void right_back(void);
+void sharp_left(void);
+void sharp_right(void);
+
+void fast_left_forward(void);
+void fast_right_forward(void);
+
+// Dependency: PWM_PB76_Init()
+// Inputs: 
+//	duty_L is the value corresponding to the duty cycle of the left wheel
+//	duty_R is the value corresponding to the duty cycle of the right wheel
+// Outputs: None 
+// Description: Changes the duty cycles of PB76 by changing the CMP registers
+void PWM_Duty(unsigned long duty_L, unsigned long duty_R);
+/////////////////////////////////////////////////////////////////////////////

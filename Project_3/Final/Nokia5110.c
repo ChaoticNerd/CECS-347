@@ -1,16 +1,16 @@
 // Nokia5110.c
 // Runs on TM4C123
 // CECS 347 Project 2 - Space Invaders
-// SSI1 is used to interface with Nokia5110.
+// SSI2 is used to interface with Nokia5110.
 // Port B4567 for SSI, Port B01 for DC/RESET respectively
 // Group number: 15
 // Group members: Natasha Kho, Justin Narciso
 
 #include "Nokia5110.h"
 #include "tm4c123gh6pm.h"
+#include "switch.h"
 #include <stdint.h>
 
-#define RESET_DELAY 200000
 // TODO: finish the following bit addresses and constants definitions
 #define DC      (*((volatile uint32_t *)0x40005004)) // PB0 (mask 0x01 -> 0x04)
 #define RESET   (*((volatile uint32_t *)0x40005008)) // PB1 (mask 0x02 -> 0x08)
@@ -21,20 +21,24 @@
 #define SSI2_CR1_MASTER 	0x4
 #define SSI2_CR1_ENABLE 	0x2
 #define SSI2_CC_SYSCLK 		0x0
-#define SSI2_CR0_SCR  0xFF00 // CLEAR to: CPSDVSR = 0 since we set it to 16 with CPSR_R
-#define SSI2_CR0_SPH   0x0080 // CLEAR to: Data captured on first clk edge
-#define SSI2_CR0_SPO   0x0040 // CLEAR to: Steady state Low on SSInClk
-#define SSI2_CR0_FRF   0x0030 // CLEAR to: Freescale
-#define SSI2_CR0_DSS   0x0007 // SET to 8 bit 
-#define SSI2_CPSR_20   0x4F;	// For Divsor
+// *************************** PORTB SETUPS ***************************
+#define PORTB_01_MASK 0x03
+#define PORTB_01_BITS 0x000000FF
 
-#define SOFT_CS
+#define PORTB_4567_MASK 0xF0
+#define PORTB_4567_BITS 0xFFFF0000
+#define PORTB_4567_SSI_BITS 0x22220000
+
+#define SSI2_CPSR_CLKDIV 20
+#define SSI2_CR0_SCR 0
+#define SSI2_CR0_SPH (0 << 6)
+#define SSI2_CR0_SPO (0 << 7)
+#define SSI2_CR0_DSS 0x07
 
 enum typeOfWrite{
   COMMAND,                              // the transmission is an LCD command
   DATA                                  // the transmission is data
 };
-
 // The Data/Command pin must be valid when the eighth bit is
 // sent.  The SSI module has hardware input and output FIFOs
 // that are 8 locations deep.  Based on the observation that
@@ -68,15 +72,7 @@ void static lcdwrite(enum typeOfWrite type, char message){
 			while((SSI2_SR_R & SSI_SR_TNF) == 0){}; // wait until transmit FIFO not full
 			DC = DC_DATA;
 			SSI2_DR_R = message;                // data out
-      while((SSI2_SR_R & SSI_SR_BSY) == SSI_SR_BSY){}; // ensure transmission complete
-    }
-}
-
-void test(void){
-	Nokia5110_SetCursor(0,0);
-for (int i = 0; i < (MAX_X*MAX_Y/8); ++i) {
-    lcdwrite(DATA, 0xff); // send full columns of 1s
-}
+  }
 }
 
 //********Nokia5110_Init*****************
@@ -85,44 +81,45 @@ for (int i = 0; i < (MAX_X*MAX_Y/8); ++i) {
 // inputs: none
 // outputs: none
 // assumes: system clock rate of 80 MHz
-// NEED TO MAP 0x4000A000, 0x4000AFC8
 void Nokia5110_Init(void){
 	volatile unsigned long delay;
   // 1) Clocks: GPIOB + SSI2
-  SYSCTL_RCGCGPIO_R |= (1U << 1);   // Port B
-  SYSCTL_RCGCSSI_R  |= (1U << 2);   // SSI2
+  SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R1;   // Port B
+  SYSCTL_RCGCSSI_R  |= SYSCTL_RCGCSSI_R2;   // SSI2
   (void)SYSCTL_RCGCGPIO_R;          // allow clocks to start
   (void)SYSCTL_RCGCSSI_R;
 
   // 2) PB0, PB1 as GPIO outputs for DC/RESET
-  GPIO_PORTB_AFSEL_R &= ~(0x03);    // PB1-0 as GPIO
-  GPIO_PORTB_PCTL_R  &= ~0x000000FF;// clear PCTL for PB1-0
-  GPIO_PORTB_AMSEL_R &= ~(0x03);    // digital
-  GPIO_PORTB_DIR_R   |=  (0x03);    // outputs
-  GPIO_PORTB_DEN_R   |=  (0x03);
+  GPIO_PORTB_AFSEL_R &= ~PORTB_01_MASK;    // PB1-0 as GPIO
+  GPIO_PORTB_PCTL_R  &= ~PORTB_01_BITS;// clear PCTL for PB1-0
+  GPIO_PORTB_AMSEL_R &= ~PORTB_01_MASK;    // digital
+  GPIO_PORTB_DIR_R   |=  PORTB_01_MASK;    // outputs
+  GPIO_PORTB_DEN_R   |=  PORTB_01_MASK;
 
   // 3) PB4..PB7 to SSI2: CLK(F), FSS(E), Rx(6), Tx(7) -> all function 2
-  GPIO_PORTB_AFSEL_R |=  0xF0;
-  GPIO_PORTB_DEN_R   |=  0xF0;
-  GPIO_PORTB_AMSEL_R &= ~0xF0;
-  GPIO_PORTB_PCTL_R   = (GPIO_PORTB_PCTL_R & ~0xFFFF0000) | 0x22220000;
+  GPIO_PORTB_AFSEL_R |=  PORTB_4567_MASK;
+  GPIO_PORTB_DEN_R   |=  PORTB_4567_MASK;
+  GPIO_PORTB_AMSEL_R &= ~PORTB_4567_MASK;
+  GPIO_PORTB_PCTL_R   = (GPIO_PORTB_PCTL_R & ~PORTB_4567_BITS) | PORTB_4567_SSI_BITS;
 	
 	 // 4) Configure SSI2 (Motorola SPI, mode 0, 8-bit, 4 MHz @ 80 MHz sysclk)
-  SSI2_CR1_R = 0;                   // disable SSI, master mode
+  SSI2_CR1_R &= ~SSI_CR1_SSE;                   // disable SSI, master mode
   // CPSDVSR must be even 2..254; SCR >=0; SSIClk = SysClk/(CPSDVSR*(1+SCR))
-  SSI2_CPSR_R = 20;                 // 80 MHz / 20 = 4 MHz (with SCR=0)
-  SSI2_CR0_R  = (0                   // SCR = 0
-                | (0 << 6)           // SPH = 0 (mode 0)
-                | (0 << 7)           // SPO = 0 (mode 0)
-                | 0x07);             // DSS = 7 -> 8-bit data
+  SSI2_CPSR_R = SSI2_CPSR_CLKDIV;                 // 80 MHz / 20 = 4 MHz (with SCR=0)
+	
+  SSI2_CR0_R  = ( SSI2_CR0_SCR           // SCR = 0
+                | SSI2_CR0_SPH           // SPH = 0 (mode 0)
+                | SSI2_CR0_SPO           // SPO = 0 (mode 0)
+                | SSI2_CR0_DSS);         // DSS = 7 -> 8-bit data
   SSI2_CR1_R |= SSI_CR1_SSE;        // enable SSI2
 
   // 5) Reset pulse and basic LCD init (per Nokia 5110 datasheet)
-  RESET = RESET_LOW;                // hold low long enough for reliable reset during tests
-  for(delay=0; delay<RESET_DELAY; delay=delay+1){ __asm("nop"); }
+  RESET = RESET_LOW;                // hold low >= 100 ns
+  //for (volatile int i=0; i<1000; i++) { __asm("nop"); }
+	for(delay=0; delay<10; delay=delay+1){}
   RESET = RESET_HIGH;
-  for(delay=0; delay<RESET_DELAY; delay=delay+1){ __asm("nop"); } // allow LCD time to come up
 
+	// do i magic number these?
 	lcdwrite(COMMAND, 0x21);              // chip active; horizontal addressing mode (V = 0); use extended instruction set (H = 1)
                                         // set LCD Vop (contrast), which may require some tweaking:
   lcdwrite(COMMAND, CONTRAST);          // try 0xB1 (for 3.3V red SparkFun), 0xB8 (for 3.3V blue SparkFun), 0xBF if your display is too dark, or 0x80 to 0xFF if experimenting
@@ -380,68 +377,5 @@ void Nokia5110_ClearPixel(unsigned char x, unsigned char y) {
 // assumes: LCD is in default horizontal addressing mode (V = 0)
 void Nokia5110_DisplayBuffer(void){
   Nokia5110_DrawFullImage(Screen);
-}
-
-//********Nokia5110_FillScreen*****************
-// Helper: fill the entire display with a single byte pattern.
-// If SOFT_CS is defined, PB5 is temporarily configured as GPIO and held low
-// during the transfer to rule out hardware FSS toggling issues.
-// inputs: value  byte to write to every display byte (0xFF -> all pixels on)
-// outputs: none
-void Nokia5110_FillScreen(unsigned char value){
-  int i;
-#ifdef SOFT_CS
-  // Save previous PB5 config (PCTL nibble, AFSEL, DIR, DEN)
-  uint32_t prev_pctl = GPIO_PORTB_PCTL_R & 0x00F00000; // PB5 bits
-  uint32_t prev_afsel = GPIO_PORTB_AFSEL_R & (1U<<5);
-  uint32_t prev_dir = GPIO_PORTB_DIR_R & (1U<<5);
-  uint32_t prev_den = GPIO_PORTB_DEN_R & (1U<<5);
-
-  // Make PB5 a GPIO output and drive it low (chip select active)
-  GPIO_PORTB_AFSEL_R &= ~(1U<<5);         // PB5 as GPIO
-  GPIO_PORTB_PCTL_R &= ~0x00F00000;       // clear PB5 PCTL
-  GPIO_PORTB_DIR_R  |=  (1U<<5);          // PB5 output
-  GPIO_PORTB_DEN_R  |=  (1U<<5);          // digital enable
-  GPIO_PORTB_DATA_R &= ~(1U<<5);          // PB5 = 0 (CS low)
-#endif
-
-  Nokia5110_SetCursor(0,0);
-  for(i=0; i<(MAX_X*MAX_Y/8); i=i+1){
-    lcdwrite(DATA, value);
-  }
-
-#ifdef SOFT_CS
-  // Raise CS and restore previous PB5 configuration
-  GPIO_PORTB_DATA_R |= (1U<<5);           // PB5 = 1 (CS high)
-  // Restore saved register bits
-  GPIO_PORTB_PCTL_R = (GPIO_PORTB_PCTL_R & ~0x00F00000) | prev_pctl;
-  if(prev_afsel) GPIO_PORTB_AFSEL_R |= (1U<<5); else GPIO_PORTB_AFSEL_R &= ~(1U<<5);
-  if(prev_dir)   GPIO_PORTB_DIR_R   |= (1U<<5); else GPIO_PORTB_DIR_R   &= ~(1U<<5);
-  if(prev_den)   GPIO_PORTB_DEN_R   |= (1U<<5); else GPIO_PORTB_DEN_R   &= ~(1U<<5);
-#endif
-}
-
-//********Nokia5110_SelfTest*****************
-// Quick sequence to help diagnose blank-screen problems: fills the screen,
-// clears it, and cycles contrast values. Call this from main after init.
-void Nokia5110_SelfTest(void){
-  volatile unsigned long delay;
-  int i;
-  // Fill full-on
-  Nokia5110_FillScreen(0xFF);
-  for(delay=0; delay<RESET_DELAY; delay=delay+1){ __asm("nop"); }
-  // Fill full-off
-  Nokia5110_FillScreen(0x00);
-  for(delay=0; delay<RESET_DELAY; delay=delay+1){ __asm("nop"); }
-
-  // Cycle a few contrast settings (require extended instruction set)
-  // Use 0x21 to enter extended, then set Vop, then exit to basic set 0x20
-  const unsigned char contrast_values[] = {0xB1, 0xB8, 0xBF};
-  for(i=0; i<3; ++i){
-    lcdwrite(COMMAND, 0x21);              // extended instruction set
-    lcdwrite(COMMAND, contrast_values[i]);
-    lcdwrite(COMMAND, 0x20);              // basic instruction set
-    for(delay=0; delay<RESET_DELAY; delay=delay+1){ __asm("nop"); }
-  }
 }
 

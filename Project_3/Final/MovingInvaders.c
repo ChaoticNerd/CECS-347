@@ -1,22 +1,16 @@
-// ModuleTest.c
+// MovingInvaders.c
 // Runs on TM4C123
 // Min He
 // April 19, 2022
-
- // ******* Required Hardware I/O connections*******************
-// Slide/rotary pot pin 1 connected to ground
-// Slide/rotary pot pin 2 connected to Ain8 (PE5)
-// Slide/rotary pot pin 3 connected to pne side of the 1k resistor
-// other side of the 1k resistor is connected to +3.3V 
-
-#include "ADC1SS3.h"
-#include "PLL.h"
-#include <stdint.h>
+ 
 #include "Nokia5110.h"
+#include "PLL.h"
+#include "stdint.h"
 
-#define ADC_TEST
-//#define LCD_TEST
-//#define SOUND_TEST
+void Delay100ms(uint32_t count);
+
+// enemy ship that starts at the top of the screen (arms/mouth closed)
+// width=16 x height=10  // 160 pixels: 160/2=80 bytes
 const uint8_t SmallEnemy30PointA[] = {
  0x42, 0x4D, 0xC6, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x76, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00,
  0x00, 0x00, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x80,
@@ -26,37 +20,71 @@ const uint8_t SmallEnemy30PointA[] = {
  0xFF, 0x0F, 0xF0, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x0F, 0xFF, 0xFF, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00,
  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF};
 
-#define MAX_X_AXIS 83  // size of the LCD screen 48x84, X axis range: 0 to 83
+struct State {
+  uint8_t x;      // x coordinate
+  uint8_t y;      // y coordinate
+  const uint8_t *image; // ptr->image
+  uint8_t life;            // 0=dead, 1=alive
+};          
+typedef struct State STyp;
+STyp Enemy[4];
 
-void LCD_Test(void);
-void Delay100ms(uint32_t count);
-void Nokia5110_SelfTest(void);
+#define ENEMY_WIDTH 18
+#define MAX_ENEMYX MAX_X-ENEMY_WIDTH
+
+
+void Init(void); // initialize all sprites 
+void Move(void); // update the positions for all sprites
+void Draw(void); // update the screen with new positions for all sprites
+
 
 int main(void){
-	#ifdef ADC_TEST
-	uint8_t x_axis;
-	#endif
   PLL_Init();             // set system clock to 80 MHz
-
-	#ifdef ADC_TEST
-	ADC1SS3_Init();
-  #endif
-
-	#ifdef LCD_TEST
-	Nokia5110_Init();
-  #endif
-	
+  Nokia5110_Init();
+  Nokia5110_ClearBuffer();
+	Nokia5110_DisplayBuffer();      // draw buffer
+  Init();
+  Draw();
   while(1){
-	#ifdef ADC_TEST
-    x_axis = ADCValue_To_X_AXIS(ADC1SS3_In(),MAX_X_AXIS);		
-	#endif
-
-	#ifdef LCD_TEST
-    LCD_Test();
-	#endif
-		
+    Move();
+    Draw();
     Delay100ms(10);
   }
+}
+
+// initialize all sprites 
+void Init(void){ 
+  uint8_t i;
+  for(i=0;i<4;i++){
+    Enemy[i].x = 20*i;
+    Enemy[i].y = 10;
+    Enemy[i].image = SmallEnemy30PointA;
+    Enemy[i].life = 1;
+  }
+}
+
+// update the positions for all sprites
+void Move(void){ 
+  uint8_t i;
+  for(i=0;i<4;i++){
+    if(Enemy[i].x < MAX_ENEMYX){
+      Enemy[i].x += 1;
+    }else{
+      Enemy[i].life = 0;
+    }
+  }
+}
+
+// update the screen with new positions for all sprites
+void Draw(void){ 
+  uint8_t i;
+  Nokia5110_ClearBuffer();
+  for(i=0;i<4;i++){
+    if(Enemy[i].life > 0){
+     Nokia5110_PrintBMP(Enemy[i].x, Enemy[i].y, Enemy[i].image, 0);  // update screen[]
+    }
+  }
+  Nokia5110_DisplayBuffer();      // draw buffer: take pixel information from screen[] snf update the LCD display
 }
 
 void Delay100ms(uint32_t count){
@@ -69,9 +97,3 @@ void Delay100ms(uint32_t count){
     count--;
   }
 }
-
-#ifdef LCD_TEST
-void LCD_Test(void){
-	Nokia5110_SelfTest();
-}	
-#endif

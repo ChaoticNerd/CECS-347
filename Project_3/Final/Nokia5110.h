@@ -1,9 +1,9 @@
 // Nokia5110.h
 // Runs on LM4F120/TM4C123
-// Use SSI0 to send an 8-bit code to the Nokia5110 48x84
+// Use SSI2 to send an 8-bit code to the Nokia5110 48x84
 // pixel LCD to display text, images, or other information.
-// Daniel Valvano
-// September 16, 2013
+// Group number: 15
+// Group members: Natasha Kho, Justin Narciso
 
 // Font table, initialization, and other functions based
 // off of Nokia_5110_Example from Spark Fun:
@@ -64,8 +64,9 @@
 // Contrast value 0xB1 looks good on red SparkFun
 // and 0xB8 looks good on blue Nokia 5110.
 // Adjust this from 0xA0 (lighter) to 0xCF (darker) for your display.
-#define CONTRAST                0xB8
-//#define CONTRAST                0xBF
+//#define CONTRAST                0xB9
+#define CONTRAST                0xCF
+//#define CONTRAST                0xA0
 
 // This table contains the hex values that represent pixels
 // for a font that is 5 pixels wide and 8 pixels high

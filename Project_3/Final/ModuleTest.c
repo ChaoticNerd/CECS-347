@@ -1,7 +1,7 @@
 // ModuleTest.c
 // Runs on TM4C123
-// Min He
-// April 19, 2022
+// Group number: 15
+// Group members: Natasha Kho, Justin Narciso
 
  // ******* Required Hardware I/O connections*******************
 // Slide/rotary pot pin 1 connected to ground
@@ -12,11 +12,23 @@
 #include "ADC1SS3.h"
 #include "PLL.h"
 #include <stdint.h>
+#include <stdio.h>
 #include "Nokia5110.h"
+#include "Sound.h"
+#include "switch.h"
+#include "Systick.h"
+#include "DAC.h"
+#include "Timer1A.h"
+#include "tm4c123gh6pm.h"
 
-#define ADC_TEST
+//#define ADC_TEST
 //#define LCD_TEST
 //#define SOUND_TEST
+
+extern void EnableInterrupts(void);
+extern void DisableInterrupts(void);
+void Delay(uint32_t ulCount);
+
 const uint8_t SmallEnemy30PointA[] = {
  0x42, 0x4D, 0xC6, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x76, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00,
  0x00, 0x00, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x80,
@@ -26,36 +38,51 @@ const uint8_t SmallEnemy30PointA[] = {
  0xFF, 0x0F, 0xF0, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x0F, 0xFF, 0xFF, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00,
  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF};
 
+ 
+
 #define MAX_X_AXIS 83  // size of the LCD screen 48x84, X axis range: 0 to 83
 
 void LCD_Test(void);
+void Sound_Test(void);
 void Delay100ms(uint32_t count);
-void Nokia5110_SelfTest(void);
-
+static unsigned int count12;
+ 
 int main(void){
+	DisableInterrupts();
+	PLL_Init();             // set system clock to 80 MHz
 	#ifdef ADC_TEST
 	uint8_t x_axis;
 	#endif
-  PLL_Init();             // set system clock to 80 MHz
+  
 
 	#ifdef ADC_TEST
 	ADC1SS3_Init();
   #endif
-
+	#ifdef SOUND_TEST
+	Sound_Init();
+	#endif
 	#ifdef LCD_TEST
 	Nokia5110_Init();
+	count12 = 0;
   #endif
+	EnableInterrupts();
 	
   while(1){
 	#ifdef ADC_TEST
     x_axis = ADCValue_To_X_AXIS(ADC1SS3_In(),MAX_X_AXIS);		
 	#endif
-
 	#ifdef LCD_TEST
-    LCD_Test();
+    LCD_Test();		 
 	#endif
-		
-    Delay100ms(10);
+	#ifdef LCD_TEST
+    //LCD_Test();		
+	#endif
+	#ifdef SOUND_TEST
+
+		Sound_Test();
+
+	#endif		
+    Delay100ms(50);
   }
 }
 
@@ -63,6 +90,8 @@ void Delay100ms(uint32_t count){
   uint32_t time;
   while(count>0){
     time = 72724;  // 0.1sec at 16 MHz
+		//time = 363620;  // ~0.1sec at 80 MHz
+
     while(time){
 	  	time--;
     }
@@ -71,7 +100,37 @@ void Delay100ms(uint32_t count){
 }
 
 #ifdef LCD_TEST
+
 void LCD_Test(void){
-	Nokia5110_SelfTest();
-}	
+  char prompt[]= "Game Over   Nice Try!   Your Score  ";
+	int end_score = 2;
+	char end_message[73];
+	Nokia5110_Clear();
+	sprintf(end_message, "%s%d" ,prompt, end_score);
+	
+	
+	Nokia5110_SetCursor(0, 1);
+	Nokia5110_OutString(end_message);
+}
+
+void Delay(uint32_t ulCount){
+  do{
+    ulCount--;
+	}while(ulCount);
+}
+
+
 #endif
+
+#ifdef SOUND_TEST
+void Sound_Test(void){
+	LED ^= LED_RED;
+	uint8_t i;
+	Sound_Shoot();
+
+}
+	
+#endif
+
+
+
