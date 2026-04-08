@@ -23,6 +23,7 @@ enum robot_modes {INACTIVE, OBJECT_FOLLOWER, WALL_FOLLOWER};
 extern void DisableInterrupts(void);
 extern void EnableInterrupts(void);  // Enable interrupts
 extern void WaitForInterrupt(void);  // low power mode
+extern void ADC1_SS1_Init(void);
 
 // functions defined in this file
 void System_Init(void);

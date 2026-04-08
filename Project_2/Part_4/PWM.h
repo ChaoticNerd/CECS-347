@@ -16,7 +16,13 @@
 
 // Constant definitions based on the following hardware interface:
 // System clock is 16MHz.
-#define TOTAL_PERIOD 10000 //  16MHz/10000=16000
+#define TOTAL_PERIOD 16000 //  16MHz/1000=16000
+#define FIFTY_DUTY   16000 * 0.5
+#define TWENTY_DUTY  16000 * 0.2
+#define THIRTY_DUTY  16000 * 0.3
+#define SEVENTY_DUTY 16000 * 0.7
+#define EIGHTY_DUTY  16000 * 0.8
+#define TEN_DUTY		 16000 * 0.1
 
 // PB7632 are used for direction control on L298.
 // Motor 1 is connected to the left wheel, Motor 2 is connected to the right wheel.

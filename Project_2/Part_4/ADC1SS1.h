@@ -1,21 +1,55 @@
-// ADC1SS3.h
-// Runs on TM4C123, starter file for space invader game
-// Group number: 15
-// Group members: Natasha Kho, Justin Narciso
+// ADC0SS3.h
+// Runs on TM4C123
+// Provide functions that initialize ADC0 SS3 to be triggered by
+// software and trigger a conversion, wait for it to finish,
+// and return the result.
+// Daniel Valvano
+// October 20, 2013
+// Modified by Min He, 10/09/2022
+
+// This file provide initialization function for two analog channels:
+// PE2/AIN1 and PD0/AIN7
 
 #include <stdint.h>
 
-// This initialization function sets up the ADC1 Samplw Sequencer 3 
-// Max sample rate: <=125,000 samples/second
-// SS3 triggering event: software trigger
-// SS3 1st sample source: Ain9 (PE4)
-// SS3 interrupts: flag set on completion but no interrupt requested
-void ADC1SS3_Init(void); 
+#define ADC1_PSSI_SS1 0x0002    // start sample sequencer 1
+#define ADC1_ISC_SS1  0x0002    // acknowledge sample sequencer 1 interrupt
+#define ADC1_RIS_SS1  0x02
 
-//------------ADC1SS3_In------------
+//347 Room values
+//#define TOO_FAR 		(1463)  // replace the zero with the ADC output value for maximum distance
+//#define FOLLOW_DIST (1979)  // replace the zero with the ADC output value for object following distance
+//#define TOO_CLOSE 	(2663)  // replace the zero with the ADC output value for minimum distance
+//Library values
+#define MAX_VAL			(0) 
+#define TOO_FAR 		(1160)  // 1463 for library lighting :: 564 for gym lighting at 30 cm :: 700 FOR 416 :: 1000 lib with cap res
+#define FOLLOW_FAR (1750)		// 1815 for library lighting with 15 cm as fixed :: 1248 for gym lighting @ 20cm :: 1700 FOR 416 :: 1200 lib with cap res
+#define FOLLOW_CLOSE (1800) // 2143 for library lighting :: 1309 for gym lighting at 20 cm :: 1500 FOR 416 :: 1400 lib with cap res
+#define TOO_CLOSE 	(3400)  // 2663 for library lighting :: 3512 for gym lighting :: 2300 FOR 416 :: 2200 lib with cap res
+#define MIN_VAL 		(4096) 
+
+// This initialization function sets up the ADC according to the
+// following parameters.  Any parameters not explicitly listed
+// below are not modified:
+// Max sample rate: <=125,000 samples/second
+// Sequencer 0 priority: 1st (highest)
+// Sequencer 1 priority: 2nd
+// Sequencer 2 priority: 3rd
+// Sequencer 3 priority: 4th (lowest)
+// SS3 triggering event: software trigger
+// SS3 1st sample source: Ain1 (PE2)
+// SS3 interrupts: flag set on completion but no interrupt requested
+void ADC1_SS1_Init(void); 
+
+//------------ADC0_InSeq3------------
 // Busy-wait Analog to digital conversion
 // Input: none
 // Output: 12-bit result of ADC conversion
-uint16_t ADC1SS3_In(void); 
+uint16_t ADC0_InSeq3(void);
 
-uint8_t ADCValue_To_X_AXIS(uint16_t ADCValue, uint8_t max_x_axis);
+void ADC1_InSeq1(unsigned long *ain3, unsigned long *ain2, unsigned long *ain1);
+
+// PE0, PE2, PE1
+void ReadADCMedianFilter(unsigned long *ain3, unsigned long *ain2, unsigned long *ain1);
+
+uint16_t median(unsigned long u1, unsigned long u2, unsigned long u3);
